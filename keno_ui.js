@@ -10,7 +10,8 @@ var KenoUi = {
         numberDeSelect: new Audio.sound('assets/sound/deselect_number.wav'),
         won: new Audio.sound('assets/sound/win.wav'),
         play: new Audio.sound('assets/sound/play.wav'),
-        clear: new Audio.sound('assets/sound/clear.wav')
+        clear: new Audio.sound('assets/sound/clear.wav'),
+        control: new Audio.sound('assets/sound/control_check.wav')
     },
     ids: {
         clear: 'clearAll',
@@ -22,7 +23,7 @@ var KenoUi = {
         fontSize: 16,
         hitBackground: '#DA2C38',
         hitText: 'white',
-        missBackground: '#5C5D5C',
+        missBackground: '#7389AE',
         missText: 'white',
         controlsBackground: '#125089',
         controlsText: 'white',
@@ -395,6 +396,8 @@ KenoUi.onClick = function(mouse){
         if(KenoUi.midRound) return;
         for(var key in KenoUi.clickables.numbers){
             delete KenoUi.clickables.numbers[key].selected;
+            delete KenoUi.clickables.numbers[key].hit;
+            delete KenoUi.clickables.numbers[key].miss;
             KenoUi.availableNumber(KenoUi.clickables.numbers[key]);
         }
         KenoUi.drawPayoutMatrix(undefined, 0);
@@ -513,6 +516,9 @@ KenoUi.onClick = function(mouse){
             if(id == rect.id){
                 KenoUi.clickables.rounds[id].selected = true
                 KenoUi.selectedRound(rect)
+                if(KenoUi.sounds.on){
+                    KenoUi.sounds.control.play();
+                }
             } else {
                 delete KenoUi.clickables.rounds[id].selected;
                 KenoUi.availableRound(KenoUi.clickables.rounds[id])
@@ -526,6 +532,9 @@ KenoUi.onClick = function(mouse){
             if(id == rect.id){
                 KenoUi.clickables.wager[id].selected = true
                 KenoUi.selectedWager(rect)
+                if(KenoUi.sounds.on){
+                    KenoUi.sounds.control.play();
+                }
             } else {
                 delete KenoUi.clickables.wager[id].selected;
                 KenoUi.availableWager(KenoUi.clickables.wager[id])
