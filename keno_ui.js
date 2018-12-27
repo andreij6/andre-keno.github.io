@@ -13,10 +13,15 @@ var KenoUi = {
         clear: new Audio.sound('assets/sound/clear.wav'),
         control: new Audio.sound('assets/sound/control_check.wav')
     },
+    speed: 'speed_turbo',
     ids: {
         clear: 'clearAll',
         quick: 'quickPick',
         play: 'play',
+        sound_on: 'sound_on',
+        sound_off: 'sound_off',
+        speed_turbo: 'speed_turbo',
+        speed_normal: 'normal_speed'
     },
     style: {
         font: '16px Exo',
@@ -33,6 +38,7 @@ var KenoUi = {
         playBackground: '#2191FB',
         playText: 'white',
         roundWagerBackground: '#125089',
+        payoutWonBackground: 'yellow'
     },
     dimenisons: {
         rows: 8,
@@ -64,7 +70,8 @@ var KenoUi = {
         numbers: {},
         controls: {},
         rounds: {},
-        wager: {}
+        wager: {},
+        settings: {}
     },
     payouts: {},
     payoutMatrix: [['Hit', 'Payout']],
@@ -241,10 +248,10 @@ KenoUi.draw = function(){
                     KenoUi.payouts[i + '' + j].w = w;
                     KenoUi.payouts[i + '' + j].h = h;
 
-                    KenoUi.drawPayoutMatrix(i + '' + j, 0);
+                    KenoUi.drawPayoutMatrix(i + '' + j);
                 } else {
                     KenoUi.payouts[i + '' + j] = { x: x, y: y, w: w, h: h, data: text }
-                    KenoUi.drawPayoutMatrix(i + '' + j, 0);
+                    KenoUi.drawPayoutMatrix(i + '' + j);
                 }
             }
         }
@@ -257,10 +264,112 @@ KenoUi.draw = function(){
         ctx.fillText(KenoUi.constants.instructions, x + (w / 2), y + (KenoUi.dimenisons.boxSize / 2));
         ctx.fillStyle = KenoUi.defaultFillStyle;
         ctx.strokeStyle = KenoUi.defaultFillStyle
+
+        //Sound & Speed Controls
+        x = rewardX + (rewardWidth * 2) + (KenoUi.dimenisons.boxMargin * 2);
+        y = rewardY;
+        w = rewardWidth;
+        h = KenoUi.dimenisons.boxSize * 2;
+        ctx.fillStyle = KenoUi.style.controlsBackground;
+        ctx.fillRect(x, y, w, KenoUi.dimenisons.boxSize);
+        ctx.fillStyle = KenoUi.style.missText;
+        ctx.fillText("Sound", x + (w / 2), y + (KenoUi.dimenisons.boxSize / 2))
+
+        y = y +  KenoUi.dimenisons.boxSize + KenoUi.dimenisons.boxMargin;
+        KenoUi.clickables.settings[KenoUi.ids.sound_on] = { x: x, y: y, w: w, h: h, id: KenoUi.ids.sound_on};
+        KenoUi.enableSoundUi();
+        
+        y = y + h + KenoUi.dimenisons.boxMargin;
+        KenoUi.clickables.settings[KenoUi.ids.sound_off] = { x: x, y: y, w: w, h: h, id: KenoUi.ids.sound_off};
+        KenoUi.disableSoundUi();
+
+        y = y + h + KenoUi.dimenisons.boxMargin;
+
+        ctx.fillStyle = KenoUi.style.controlsBackground;
+        ctx.fillRect(x, y, w, KenoUi.dimenisons.boxSize);
+        ctx.fillStyle = KenoUi.style.missText;
+        ctx.fillText("SPEED", x + (w / 2), y + (KenoUi.dimenisons.boxSize / 2))
+
+        y = y + KenoUi.dimenisons.boxSize + KenoUi.dimenisons.boxMargin;
+        KenoUi.clickables.settings[KenoUi.ids.speed_turbo] = { x: x, y: y, w: w, h: h, id: KenoUi.ids.speed_turbo};
+        KenoUi.turboUi();
+
+        y = y + h + KenoUi.dimenisons.boxMargin;
+        KenoUi.clickables.settings[KenoUi.ids.speed_normal] = { x: x, y: y, w: w, h: h, id: KenoUi.ids.speed_normal};
+        KenoUi.normalSpeedUi();
+
     }
     numberGrid();
     controls();
 };
+
+KenoUi.turboUi = function(){
+    var ctx = KenoUi.context;
+    var rect = KenoUi.clickables.settings[KenoUi.ids.speed_turbo];
+
+    if(KenoUi.speed == KenoUi.ids.speed_turbo){
+        ctx.fillStyle = KenoUi.style.missBackground;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.fillStyle = KenoUi.style.missText;
+        ctx.fillText("TURBO", rect.x + (rect.w / 2), rect.y + (rect.h / 2))
+    } else {
+        ctx.fillStyle = KenoUi.style.missText;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.fillStyle = KenoUi.style.defaultFillStyle;
+        ctx.fillText("TURBO", rect.x + (rect.w / 2), rect.y + (rect.h / 2))
+    }
+}
+
+KenoUi.normalSpeedUi = function(){
+    var ctx = KenoUi.context;
+    var rect = KenoUi.clickables.settings[KenoUi.ids.speed_normal];
+
+    if(KenoUi.speed == KenoUi.ids.speed_turbo){
+        ctx.fillStyle = KenoUi.style.missText;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.fillStyle = KenoUi.style.defaultFillStyle;
+        ctx.fillText("NORMAL", rect.x + (rect.w / 2), rect.y + (rect.h / 2))
+    } else {
+        ctx.fillStyle = KenoUi.style.missBackground;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.fillStyle = KenoUi.style.missText;
+        ctx.fillText("NORMAL", rect.x + (rect.w / 2), rect.y + (rect.h / 2))
+    }
+}
+
+KenoUi.disableSoundUi = function(){
+    var ctx = KenoUi.context;
+    var rect = KenoUi.clickables.settings[KenoUi.ids.sound_off];
+
+    if(KenoUi.sounds.on){
+        ctx.fillStyle = KenoUi.style.missText;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.fillStyle = KenoUi.style.defaultFillStyle;
+        ctx.fillText("OFF", rect.x + (rect.w / 2), rect.y + (rect.h / 2))
+    } else {
+        ctx.fillStyle = KenoUi.style.missBackground;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.fillStyle = KenoUi.style.missText;
+        ctx.fillText("OFF", rect.x + (rect.w / 2), rect.y + (rect.h / 2))
+    }
+}
+
+KenoUi.enableSoundUi = function(){
+    var ctx = KenoUi.context;
+    var rect = KenoUi.clickables.settings[KenoUi.ids.sound_on];
+
+    if(KenoUi.sounds.on){
+        ctx.fillStyle = KenoUi.style.missBackground;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.fillStyle = KenoUi.style.missText;
+        ctx.fillText("ON", rect.x + (rect.w / 2), rect.y + (rect.h / 2))
+    } else {
+        ctx.fillStyle = KenoUi.style.missText;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.fillStyle = KenoUi.style.defaultFillStyle;
+        ctx.fillText("ON", rect.x + (rect.w / 2), rect.y + (rect.h / 2))
+    }
+}
 
 KenoUi.availableNumber = function(rect){
     var ctx = KenoUi.context;
@@ -389,7 +498,7 @@ KenoUi.onClick = function(mouse){
                 }
             }
         }
-        KenoUi.drawPayoutMatrix(undefined,count);
+        KenoUi.drawPayoutMatrix(undefined);
     }
 
     var clearAll = function(rect){
@@ -400,7 +509,7 @@ KenoUi.onClick = function(mouse){
             delete KenoUi.clickables.numbers[key].miss;
             KenoUi.availableNumber(KenoUi.clickables.numbers[key]);
         }
-        KenoUi.drawPayoutMatrix(undefined, 0);
+        KenoUi.drawPayoutMatrix(undefined);
 
         if(KenoUi.sounds.on){
             KenoUi.sounds.clear.play();
@@ -428,14 +537,16 @@ KenoUi.onClick = function(mouse){
         }
         clearAll();
         var quickPicks = KenoLogic.quickSelections(selected);
-        KenoUi.drawPayoutMatrix(undefined,quickPicks.length);
         for(var idx in quickPicks){  
             KenoUi.selectedNumber(KenoUi.clickables.numbers[quickPicks[idx]]);
             KenoUi.clickables.numbers[quickPicks[idx]].selected = true;
         }
+        KenoUi.drawPayoutMatrix(undefined);
+
     }
 
     var play = function(playBtn){
+        
         var resetUi = function(){
             ctx.fillStyle = KenoUi.style.playBackground;
             ctx.fillText(KenoUi.constants.Stop, playBtn.x + (playBtn.w / 2), playBtn.y + (playBtn.h / 2));
@@ -446,11 +557,28 @@ KenoUi.onClick = function(mouse){
             KenoUi.midRound = false;
         }
 
+        var roundResults = function(total){
+            for(var i = 0; i < KenoUi.payoutMatrix.length; i++){
+                if(KenoUi.payoutMatrix[i][0] == total){
+                    if(KenoUi.sounds.on){
+                        KenoUi.sounds.won.play();
+                    }
+
+                    KenoUi.drawPayoutWon(i)
+                    return;
+                }
+            }
+
+            console.log('LOSER');
+        }
+
         if(playBtn.stop){
             resetUi();
             return;
         } else {
             KenoUi.stopRound  = false;
+
+            KenoUi.drawPayoutMatrix(undefined)
         }
 
         var ready = false;
@@ -474,6 +602,7 @@ KenoUi.onClick = function(mouse){
                 return;
             } else {
                 KenoUi.midRound = true;
+                KenoUi.drawPayoutMatrix(undefined)
             }
             clearDrawn();
             if(rounds > 1){
@@ -484,16 +613,21 @@ KenoUi.onClick = function(mouse){
                 playBtn.stop = true;
             }
             var numbers = KenoLogic.makeSelections();
+            var hitTotal = 0;
+            
             for(var idx in numbers){
                 var rect = KenoUi.clickables.numbers[numbers[idx]];
                 if(rect.selected){
                     rect.hit = true
                     KenoUi.hitNumber(rect);
+                    hitTotal++;
                 } else {
                     rect.miss = true;
                     KenoUi.missNumber(rect);
                 }
             }
+
+            roundResults(hitTotal);
 
             rounds--;
             if(rounds > 0 && KenoUi.midRound){
@@ -541,11 +675,31 @@ KenoUi.onClick = function(mouse){
             }
         }
 
-        var count = 0;
-        for(var key in KenoUi.clickables.numbers){
-            if('selected' in KenoUi.clickables.numbers[key]) count++
-        }
-        KenoUi.drawPayoutMatrix(undefined, count);
+        KenoUi.drawPayoutMatrix(undefined);
+    }
+
+    var normalSpeed = function(){
+        KenoUi.speed = KenoUi.ids.speed_normal;
+        KenoUi.normalSpeedUi();
+        KenoUi.turboUi();
+    }
+
+    var turboSpeed = function(){
+        KenoUi.speed = KenoUi.ids.speed_turbo;
+        KenoUi.normalSpeedUi();
+        KenoUi.turboUi();
+    }
+
+    var enableSound = function(){
+        KenoUi.sounds.on = true;
+        KenoUi.enableSoundUi();
+        KenoUi.disableSoundUi();
+    }
+
+    var disableSound = function(){
+        KenoUi.sounds.on = false;
+        KenoUi.disableSoundUi();
+        KenoUi.enableSoundUi();
     }
 
     var mouseX = mouse.x - canvas.getBoundingClientRect().left;
@@ -560,7 +714,7 @@ KenoUi.onClick = function(mouse){
         var control = collision(KenoUi.clickables.controls, mouseX, mouseY);
 
         if(control){
-            var method = {
+            var o = {
                 [KenoUi.ids.clear]: clearAll,  
                 [KenoUi.ids.quick]: quickPick, 
                 [KenoUi.ids.play]: play,
@@ -573,10 +727,22 @@ KenoUi.onClick = function(mouse){
         
         control = collision(KenoUi.clickables.wager, mouseX, mouseY);
         if(control) wager(control);
+
+        control = collision(KenoUi.clickables.settings, mouseX, mouseY);
+        
+        if(control) {
+            var o = {
+                [KenoUi.ids.sound_on]: enableSound,
+                [KenoUi.ids.sound_off]: disableSound,
+                [KenoUi.ids.speed_normal]: normalSpeed,
+                [KenoUi.ids.speed_turbo]: turboSpeed
+            }[control.id]();
+            return;
+        }
     } 
 };
 
-KenoUi.drawPayoutMatrix = function(key, count){
+KenoUi.drawPayoutMatrix = function(key){
     var ctx = KenoUi.context;
 
     if(key !== undefined){
@@ -586,6 +752,12 @@ KenoUi.drawPayoutMatrix = function(key, count){
         ctx.fillText(numberWithCommas(rect.data), rect.x + (rect.w / 2), rect.y + (rect.h / 2));
     } else {
         var wager = 1;
+
+        var count = 0;
+
+        for(var key in KenoUi.clickables.numbers){
+            if('selected' in KenoUi.clickables.numbers[key]) count++
+        }
 
         for(var key in KenoUi.clickables.wager){
             if(KenoUi.clickables.wager[key].selected){
@@ -621,6 +793,20 @@ KenoUi.drawPayoutMatrix = function(key, count){
 
 }
 
+KenoUi.drawPayoutWon = function(keyI){
+    var ctx = KenoUi.context;
+
+    for(var j = 0; j < 2; j++){
+        var rect = KenoUi.payouts[keyI + '' + j];
+
+        ctx.clearRect(rect.x - 1, rect.y - 1, rect.w + 2, rect.h + 2);
+        ctx.fillStyle = KenoUi.style.payoutWonBackground;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.fillStyle = KenoUi.style.defaultFillStyle;
+        ctx.fillText(numberWithCommas(rect.data), rect.x + (rect.w / 2), rect.y + (rect.h / 2));
+    }
+}
+
 WebFont.load({
     google: {
       families: ['Exo', 'Open Sans:bold']
@@ -640,6 +826,3 @@ KenoUi.resizeCanvas();
 canvas.addEventListener('click', KenoUi.onClick);
 
 window.addEventListener('resize', KenoUi.resizeCanvas, false);
-
-
-
