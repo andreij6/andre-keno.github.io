@@ -58,7 +58,7 @@ var KenoUi = {
         wager: {}
     },
     payouts: {},
-    payoutMatrix: [['Hit', 'Reward']],
+    payoutMatrix: [['Hit', 'Payout']],
     stopRound: false,
     midRound: false
  };
