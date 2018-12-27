@@ -18,7 +18,7 @@ var KenoUi = {
         play: 'play',
     },
     style: {
-        font: '16px Arial',
+        font: '16px Exo',
         fontSize: 16,
         hitBackground: '#DA2C38',
         hitText: 'white',
@@ -611,6 +611,15 @@ KenoUi.drawPayoutMatrix = function(key, count){
     }
 
 }
+
+WebFont.load({
+    google: {
+      families: ['Exo', 'Open Sans:bold']
+    },
+    active: function() {
+      KenoUi.resizeCanvas();
+    }
+});
 
 function numberWithCommas(x) {
     if(isNaN(x)) return x;
