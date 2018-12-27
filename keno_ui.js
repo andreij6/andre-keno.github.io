@@ -4,6 +4,14 @@ var canvas = document.querySelector('canvas');
 
 var KenoUi = {
     context: canvas.getContext('2d'),
+    sounds: {
+        on: true,
+        numberSelect: new Audio.sound('assets/sound/select_number_1.wav'),
+        numberDeSelect: new Audio.sound('assets/sound/deselect_number.wav'),
+        won: new Audio.sound('assets/sound/win.wav'),
+        play: new Audio.sound('assets/sound/play.wav'),
+        clear: new Audio.sound('assets/sound/clear.wav')
+    },
     ids: {
         clear: 'clearAll',
         quick: 'quickPick',
@@ -244,7 +252,7 @@ KenoUi.draw = function(){
         y = KenoUi.dimenisons.origin.y - (KenoUi.dimenisons.boxSize) - (KenoUi.dimenisons.boxMargin);
         w = horizontalControlWidth - KenoUi.dimenisons.boxMargin;
         h = KenoUi.dimenisons.boxSize;
-        ctx.fillStyle = KenoUi.constants.controlsText;
+        ctx.fillStyle = KenoUi.style.controlsText;
         ctx.fillText(KenoUi.constants.instructions, x + (w / 2), y + (KenoUi.dimenisons.boxSize / 2));
         ctx.fillStyle = KenoUi.defaultFillStyle;
         ctx.strokeStyle = KenoUi.defaultFillStyle
@@ -294,6 +302,7 @@ KenoUi.availableWager = function(rect){
     var ctx = KenoUi.context;
     ctx.clearRect(rect.x - 1, rect.y - 1, rect.w + 2, rect.h + 2);
     ctx.strokeStyle = KenoUi.style.roundWagerBackground;
+    ctx.fillStyle = KenoUi.style.defaultFillStyle;
     ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
     ctx.strokeStyle = KenoUi.style.defaultFillStyle;
     ctx.fillText(rect.id + KenoUi.constants.wager, rect.x + (rect.w / 2), rect.y + (rect.h / 2));
@@ -333,8 +342,6 @@ KenoUi.availableRound = function(rect){
     ctx.fillText(rect.id+ suffix, rect.x + (rect.w / 2), rect.y + (rect.h / 2));
 }
 
-
-
 KenoUi.onClick = function(mouse){
     var ctx = KenoUi.context;
 
@@ -364,6 +371,10 @@ KenoUi.onClick = function(mouse){
             delete rect.selected
             KenoUi.availableNumber(rect)
             count--;
+
+            if(KenoUi.sounds.on){
+                KenoUi.sounds.numberDeSelect.play();
+            }
         } else {
             
             if(count < 15){
@@ -371,6 +382,10 @@ KenoUi.onClick = function(mouse){
                 rect.selected = true;
                 KenoUi.selectedNumber(rect);
                 count++;
+
+                if(KenoUi.sounds.on){
+                    KenoUi.sounds.numberSelect.play();
+                }
             }
         }
         KenoUi.drawPayoutMatrix(undefined,count);
@@ -383,6 +398,10 @@ KenoUi.onClick = function(mouse){
             KenoUi.availableNumber(KenoUi.clickables.numbers[key]);
         }
         KenoUi.drawPayoutMatrix(undefined, 0);
+
+        if(KenoUi.sounds.on){
+            KenoUi.sounds.clear.play();
+        }
     }
 
     var clearDrawn = function(){
@@ -444,6 +463,7 @@ KenoUi.onClick = function(mouse){
                 rounds = KenoUi.clickables.rounds[key].id;
             }
         }
+
         var playRound = function(){
             if(KenoUi.stopRound){
                 KenoUi.stopRound = false;
@@ -471,6 +491,7 @@ KenoUi.onClick = function(mouse){
                     KenoUi.missNumber(rect);
                 }
             }
+
             rounds--;
             if(rounds > 0 && KenoUi.midRound){
                 setTimeout(playRound, 1000);
@@ -478,6 +499,11 @@ KenoUi.onClick = function(mouse){
                 resetUi();
             }
         }
+
+        if(KenoUi.sounds.on){
+            KenoUi.sounds.play.play()
+        }
+
         playRound();
     }
 
