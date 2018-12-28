@@ -429,6 +429,7 @@ Controls.Round = function(rect, round){
         this.round = round;
 
         this.onClick = function(ctx){
+            if(GameCanvas.playButton.inRound()) return;
             Audio.Settings();
             GameCanvas.rounds.update(ctx, this.round)
         }
@@ -477,6 +478,7 @@ Controls.Wager = function(rect, wager){
         this.wager = wager;
 
         this.onClick = function(ctx){
+            if(GameCanvas.playButton.inRound()) return;
             Audio.Settings();
             GameCanvas.wagers.update(ctx, this.wager)
             GameCanvas.payout.update(ctx);
