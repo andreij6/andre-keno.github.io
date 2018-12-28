@@ -38,7 +38,8 @@ var KenoUi = {
         playBackground: '#2191FB',
         playText: 'white',
         roundWagerBackground: '#125089',
-        payoutWonBackground: 'yellow'
+        payoutWonBackground: 'yellow',
+        disabledButton: 'gray'
     },
     dimenisons: {
         rows: 8,
@@ -64,6 +65,7 @@ var KenoUi = {
         Blank: '--',
         Play: 'Play',
         Stop: 'Stop',
+        Wait: 'Wait',
         instructions: 'Select up to 15 Numbers'
     },
     clickables: {
@@ -76,7 +78,8 @@ var KenoUi = {
     payouts: {},
     payoutMatrix: [['Hit', 'Payout']],
     stopRound: false,
-    midRound: false
+    midRound: false,
+    stopDelay: false
  };
 
  KenoUi.resizeCanvas = function(){
@@ -546,16 +549,7 @@ KenoUi.onClick = function(mouse){
     }
 
     var play = function(playBtn){
-        
-        var resetUi = function(){
-            ctx.fillStyle = KenoUi.style.playBackground;
-            ctx.fillText(KenoUi.constants.Stop, playBtn.x + (playBtn.w / 2), playBtn.y + (playBtn.h / 2));
-            ctx.fillStyle = KenoUi.style.playText;
-            ctx.fillText(KenoUi.constants.Play, playBtn.x + (playBtn.w / 2), playBtn.y + (playBtn.h / 2));
-            playBtn.stop = false;
-            KenoUi.stopRound = true;
-            KenoUi.midRound = false;
-        }
+        if(KenoUi.stopDelay) return;
 
         var roundResults = function(total){
             for(var i = 0; i < KenoUi.payoutMatrix.length; i++){
@@ -572,8 +566,34 @@ KenoUi.onClick = function(mouse){
             console.log('LOSER');
         }
 
+        var resetUi = function(){
+            ctx.fillStyle = KenoUi.style.playBackground;
+            ctx.fillRect(playBtn.x, playBtn.y, playBtn.w, playBtn.h);
+            //ctx.fillText(KenoUi.constants.Stop, playBtn.x + (playBtn.w / 2), playBtn.y + (playBtn.h / 2));
+            ctx.fillStyle = KenoUi.style.playText;
+            ctx.fillText(KenoUi.constants.Play, playBtn.x + (playBtn.w / 2), playBtn.y + (playBtn.h / 2));
+            playBtn.stop = false;
+            KenoUi.stopRound = true;
+            KenoUi.midRound = false;
+        }
+
         if(playBtn.stop){
-            resetUi();
+            ctx.fillStyle = KenoUi.style.disabledButton;
+            ctx.fillRect(playBtn.x, playBtn.y, playBtn.w, playBtn.h);
+            ctx.fillStyle = KenoUi.style.playBackground;
+            ctx.fillText(KenoUi.constants.Stop, playBtn.x + (playBtn.w / 2), playBtn.y + (playBtn.h / 2));
+            ctx.fillStyle = KenoUi.style.playText;
+            ctx.fillText(KenoUi.constants.Wait, playBtn.x + (playBtn.w / 2), playBtn.y + (playBtn.h / 2));
+            playBtn.stop = false;
+            KenoUi.stopRound = true;
+            KenoUi.stopDelay = true;
+
+            setTimeout(function(){
+                KenoUi.stopDelay = false
+                KenoUi.midRound = false;
+
+                resetUi();
+            }, 1500)
             return;
         } else {
             KenoUi.stopRound  = false;
