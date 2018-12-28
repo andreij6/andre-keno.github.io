@@ -110,7 +110,7 @@ GameCanvas.draw = function(){
         y = GameCanvas.dimenisons.origin.y + (GameCanvas.dimenisons.boxSize * 9) + (GameCanvas.dimenisons.boxMargin * 9);
         w = w + w + GameCanvas.dimenisons.boxMargin;
         h = GameCanvas.dimenisons.boxSize * 3 + GameCanvas.dimenisons.boxMargin * 2;
-        GameCanvas.playButton = new Controls.Play(new Keno.Rect(x, y, w, h));
+        if(!('playButton' in GameCanvas)) GameCanvas.playButton = new Controls.Play(new Keno.Rect(x, y, w, h));
         GameCanvas.playButton.draw(ctx);
 
         x = x + w + GameCanvas.dimenisons.boxMargin;

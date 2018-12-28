@@ -4,7 +4,9 @@ var Controls = {
     style: {
         bankroll: {
             background: 'grey',
-            text: 'white'
+            text: 'white',
+            won_text: 'white',
+            won_background: 'green'
         },
         empty: {
             background: 'grey'
@@ -21,13 +23,19 @@ var Controls = {
             selected_background: '#125089',
             selected_text: 'white',
             outline_color: '#125089',
-            available_text: 'black'
+            available_text: 'black',
+            available_background: 'white',
+            disabled_background: 'grey',
+            disabled_text: 'white'
         },
         round: {
             selected_background: '#125089',
             selected_text: 'white',
             outline_color: '#125089',
-            available_text: 'black'
+            available_text: 'black',
+            available_background: 'white',
+            disabled_background: 'grey',
+            disabled_text: 'white'
         },
         play: {
             background: 'green',
@@ -130,6 +138,12 @@ Controls.Play = function(rect){
         var canvas = document.querySelector('canvas');
         var ctx = canvas.getContext('2d');
         GameCanvas.payout.draw(ctx);
+        GameCanvas.playButton.draw(ctx);
+
+        if(GameCanvas.playButton.rounds_left == 1){
+            GameCanvas.playButton.current_state = GameCanvas.playButton.states.waiting;
+            GameCanvas.playButton.draw(ctx);
+        }
 
         if(!GameCanvas.playButton.terminate){
             for(var i in GameCanvas.numbers){
@@ -148,6 +162,7 @@ Controls.Play = function(rect){
                 }
                 GameCanvas.payout.result(ctx, total_hit);
                 GameCanvas.playButton.rounds_left--;
+                
                 if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
                     setTimeout(GameCanvas.playButton.round, 1000)
                 } else {
@@ -201,11 +216,12 @@ Controls.Play = function(rect){
             this.current_state = this.states.waiting;
             this.draw(ctx);
         } else {
-            this.current_state = this.states.stop;
-            this.draw(ctx);
             this.rounds_left = GameCanvas.rounds.current_round;
+            this.current_state = this.rounds_left == 1 ? this.states.waiting : this.states.stop;
+            this.draw(ctx);
             this.round(ctx);
         }
+
         Audio.Play();
     }
 
@@ -214,6 +230,8 @@ Controls.Play = function(rect){
     var playConfig = { background: Controls.style.play.background, text: Controls.style.play.text, data: 'Play'}
 
     this.draw = function(ctx){
+        stopConfig.extra = 'Round ' + (GameCanvas.rounds.current_round - (this.rounds_left - 1));
+
         var configs = {
             [this.states.waiting]: waitConfig,
             [this.states.play]: playConfig,
@@ -223,7 +241,11 @@ Controls.Play = function(rect){
         ctx.fillStyle = configs.background;
         ctx.fillRect(rect.x, rect.y, rect.w,rect.h);
         ctx.fillStyle = configs.text;
+        if('extra' in configs)ctx.fillText(configs.extra, rect.x + (rect.w / 2), rect.y + (rect.h / 2.75));
         ctx.fillText(configs.data, rect.x + (rect.w / 2), rect.y + (rect.h / 2));
+
+        if(GameCanvas.rounds) GameCanvas.rounds.draw(ctx);
+        if(GameCanvas.wagers) GameCanvas.wagers.draw(ctx);
     }
 }
 
@@ -440,25 +462,29 @@ Controls.Round = function(rect, round){
         this.draw(ctx);
     }
 
+    var available = { text: Controls.style.round.available_text, background: Controls.style.round.available_background}
+    var selected = {text: Controls.style.round.selected_text, background: Controls.style.round.selected_background }
+    var disabled = {text: Controls.style.round.disabled_text, background: Controls.style.round.disabled_background }
+
     this.draw = function(ctx){
         for(var key in this.increments){
             var y = rect.y + (rect.h * key) + (GameCanvas.dimenisons.boxMargin * key);
             var suffix = key == 0 ? ' Round' : ' Rounds';
 
-            if(this.current_round === this.increments[key]){
-                ctx.fillStyle = Controls.style.round.selected_background;
-                ctx.fillRect(rect.x, y, rect.w, rect.h);
-                ctx.fillStyle = Controls.style.round.selected_text;
-                ctx.fillText(this.current_round + suffix, rect.x + (rect.w / 2), y + (rect.h / 2));
-                this.clickables[this.increments[key]] = { rect: new Keno.Rect(rect.x, y, rect.w, rect.h), actor: new roundActor(this.increments[key])}
-            } else {
-                ctx.clearRect(rect.x - 1, y - 1, rect.w + 2, rect.h + 2);
-                ctx.strokeStyle = Controls.style.round.outline_color;
-                ctx.strokeRect(rect.x, y, rect.w, rect.h);
-                ctx.fillStyle = Controls.style.round.available_text;
-                ctx.fillText(this.increments[key] + suffix, rect.x + (rect.w / 2), y + (rect.h / 2));
-                this.clickables[this.increments[key]] = { rect: new Keno.Rect(rect.x, y, rect.w, rect.h), actor: new roundActor(this.increments[key])}
+            var colors = this.current_round === this.increments[key] ? selected : available;
+            
+            if(GameCanvas.playButton && colors == available){
+                if(GameCanvas.playButton.inRound()) {
+                    colors = disabled;
+                }
             }
+
+            ctx.clearRect(rect.x, y, rect.w, rect.h);
+            ctx.fillStyle = colors.background;
+            ctx.fillRect(rect.x, y, rect.w, rect.h);
+            ctx.fillStyle = colors.text;
+            ctx.fillText(this.increments[key] + suffix, rect.x + (rect.w / 2), y + (rect.h / 2));
+            this.clickables[this.increments[key]] = { rect: new Keno.Rect(rect.x, y, rect.w, rect.h), actor: new roundActor(this.increments[key])}
         }
     }
 
@@ -490,24 +516,27 @@ Controls.Wager = function(rect, wager){
         this.draw(ctx);
     }
 
+    var available = { text: Controls.style.wager.available_text, background: Controls.style.wager.available_background}
+    var selected = {text: Controls.style.wager.selected_text, background: Controls.style.wager.selected_background }
+    var disabled = {text: Controls.style.wager.disabled_text, background: Controls.style.wager.disabled_background }
+
     this.draw = function(ctx){
         for(var key in this.increments){
             var y = rect.y + (rect.h * key) + (GameCanvas.dimenisons.boxMargin * key);
 
-            if(this.current_wager === this.increments[key]){
-                ctx.fillStyle = Controls.style.wager.selected_background;
-                ctx.fillRect(rect.x, y, rect.w, rect.h);
-                ctx.fillStyle = Controls.style.wager.selected_text;
-                ctx.fillText(this.current_wager + ' FUN', rect.x + (rect.w / 2), y + (rect.h / 2));
-                this.clickables[this.increments[key]] = { rect: new Keno.Rect(rect.x, y, rect.w, rect.h), actor: new wagerActor(this.increments[key])}
-            } else {
-                ctx.clearRect(rect.x - 1, y - 1, rect.w + 2, rect.h + 2);
-                ctx.strokeStyle = Controls.style.wager.outline_color;
-                ctx.strokeRect(rect.x, y, rect.w, rect.h);
-                ctx.fillStyle = Controls.style.wager.available_text;
-                ctx.fillText(this.increments[key] + ' FUN', rect.x + (rect.w / 2), y + (rect.h / 2));
-                this.clickables[this.increments[key]] = { rect: new Keno.Rect(rect.x, y, rect.w, rect.h), actor: new wagerActor(this.increments[key])}
+            var colors = this.current_wager === this.increments[key] ? selected : available;
+
+            if(GameCanvas.playButton && this.current_wager != this.increments[key]){
+                if(GameCanvas.playButton.inRound()) {
+                    colors = disabled;
+                }
             }
+
+            ctx.fillStyle = colors.background;
+            ctx.fillRect(rect.x, y, rect.w, rect.h);
+            ctx.fillStyle = colors.text;
+            ctx.fillText(this.increments[key] + ' FUN', rect.x + (rect.w / 2), y + (rect.h / 2));
+            this.clickables[this.increments[key]] = { rect: new Keno.Rect(rect.x, y, rect.w, rect.h), actor: new wagerActor(this.increments[key])}
         }
     }
 
@@ -521,11 +550,30 @@ Controls.Bankroll = function(rect){
 
     this.update = function(ctx, amount){
         KenoLogic.bankroll += amount;
-        this.draw(ctx);
+        this.animate(ctx, amount);
+    }
+
+    this.animate = function(ctx, amount) {
+        ctx.fillStyle = Controls.style.bankroll.background;
+        ctx.clearRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.fillStyle = Controls.style.bankroll.won_background;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.fillStyle = Controls.style.bankroll.text;
+        ctx.fillText('Bankroll: ' + numberWithCommas(KenoLogic.bankroll), rect.x + (rect.w / 4), rect.y + (rect.h / 2));
+        
+        if(amount > 0){
+            ctx.fillStyle = Controls.style.bankroll.won_text;
+            ctx.fillText('+ ' + amount, rect.x + (rect.w / 1.5), rect.y + (rect.h / 2));
+            var that = this;
+            setTimeout(function(){ that.draw(ctx); }, 2000)
+        } else {
+            this.draw(ctx);
+        }
     }
 
     this.draw = function(ctx){
         ctx.fillStyle = Controls.style.bankroll.background;
+        ctx.clearRect(rect.x, rect.y, rect.w, rect.h);
         ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
         ctx.fillStyle = Controls.style.bankroll.text;
         ctx.fillText('Bankroll: ' + numberWithCommas(KenoLogic.bankroll), rect.x + (rect.w / 4), rect.y + (rect.h / 2));
