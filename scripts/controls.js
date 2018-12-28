@@ -244,7 +244,7 @@ Controls.Payout = function(rect, matrix){
 
     this.update = function(ctx){
         var matrix = KenoLogic.matrix(Object.keys(Keno.selected).length, GameCanvas.wagers.current_wager);
-        matrix.unshift(['Hit', 'Payout']);
+        matrix.unshift(['Hits', 'Payout']);
         this.payoutMatrix = matrix;
         this.draw(ctx);
     }
