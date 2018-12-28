@@ -9,11 +9,12 @@ var KenoUi = {
         numberSelect: new Audio.sound('assets/sound/select_number_1.wav'),
         numberDeSelect: new Audio.sound('assets/sound/deselect_number.wav'),
         won: new Audio.sound('assets/sound/win.wav'),
-        play: new Audio.sound('assets/sound/play.wav'),
+        //play: new Audio.sound('assets/sound/play.wav'),
         clear: new Audio.sound('assets/sound/clear.wav'),
-        control: new Audio.sound('assets/sound/control_check.wav')
+        control: new Audio.sound('assets/sound/control_check.wav'),
+        hit: new Audio.sound('assets/sound/hit.wav'),
     },
-    speed: 'speed_turbo',
+    speed: 'normal_speed',
     ids: {
         clear: 'clearAll',
         quick: 'quickPick',
@@ -80,7 +81,12 @@ var KenoUi = {
     payoutMatrix: [['Hit', 'Payout']],
     stopRound: false,
     midRound: false,
-    stopDelay: false
+    stopDelay: false,
+    gameSpeed: {
+        nextRoundTimeout: 1000,
+        stopTimeout: 1000
+        
+    }
  };
 
  KenoUi.resizeCanvas = function(){
@@ -301,14 +307,14 @@ KenoUi.draw = function(){
         ctx.fillText("SPEED", x + (w / 2), y + (KenoUi.dimenisons.boxSize / 2))
 
         y = y + KenoUi.dimenisons.boxSize + KenoUi.dimenisons.boxMargin;
-        KenoUi.clickables.settings[KenoUi.ids.speed_turbo] = { x: x, y: y, w: w, h: h, id: KenoUi.ids.speed_turbo};
-        KenoUi.turboUi();
-
-        y = y + h + KenoUi.dimenisons.boxMargin;
         KenoUi.clickables.settings[KenoUi.ids.speed_normal] = { x: x, y: y, w: w, h: h, id: KenoUi.ids.speed_normal};
         KenoUi.normalSpeedUi();
 
+        y = y + h + KenoUi.dimenisons.boxMargin;
+        KenoUi.clickables.settings[KenoUi.ids.speed_turbo] = { x: x, y: y, w: w, h: h, id: KenoUi.ids.speed_turbo};
+        KenoUi.turboUi();
     }
+
     numberGrid();
     controls();
 };
@@ -472,6 +478,8 @@ KenoUi.availableRound = function(rect){
     ctx.fillText(rect.id+ suffix, rect.x + (rect.w / 2), rect.y + (rect.h / 2));
 }
 
+var animatingIndex = 0;
+
 KenoUi.onClick = function(mouse){
     var ctx = KenoUi.context;
 
@@ -612,13 +620,16 @@ KenoUi.onClick = function(mouse){
             playBtn.stop = false;
             KenoUi.stopRound = true;
             KenoUi.stopDelay = true;
+            var stopTimeout = KenoUi.gameSpeed.stopTimeout
 
-            setTimeout(function(){
-                KenoUi.stopDelay = false
-                KenoUi.midRound = false;
-
-                resetUi();
-            }, 1500)
+            if(KenoUi.speed == KenoUi.ids.speed_turbo){
+                setTimeout(function(){
+                    KenoUi.stopDelay = false
+                    KenoUi.midRound = false;
+                    resetUi();
+                }, stopTimeout)
+            }
+            
             return;
         } else {
             KenoUi.stopRound  = false;
@@ -660,30 +671,64 @@ KenoUi.onClick = function(mouse){
             var numbers = KenoLogic.makeSelections();
             var hitTotal = 0;
             
-            for(var idx in numbers){
-                var rect = KenoUi.clickables.numbers[numbers[idx]];
-                if(rect.selected){
-                    rect.hit = true
-                    KenoUi.hitNumber(rect);
-                    hitTotal++;
-                } else {
-                    rect.miss = true;
-                    KenoUi.missNumber(rect);
+            if(KenoUi.speed == KenoUi.ids.speed_turbo){
+                for(var idx in numbers){
+                    var rect = KenoUi.clickables.numbers[numbers[idx]];
+                    if(rect.selected){
+                        rect.hit = true
+                        KenoUi.hitNumber(rect);
+                        hitTotal++;
+                    } else {
+                        rect.miss = true;
+                        KenoUi.missNumber(rect);
+                    }
                 }
-            }
-
-            roundResults(hitTotal);
-
-            rounds--;
-            if(rounds > 0 && KenoUi.midRound){
-                setTimeout(playRound, 1000);
+                roundResults(hitTotal);
+                rounds--;
+                if(rounds > 0 && KenoUi.midRound){
+                    setTimeout(playRound, KenoUi.gameSpeed.nextRoundTimeout);
+                } else {
+                    resetUi();
+                }
             } else {
-                resetUi();
-            }
-        }
+                numbers = shuffle(numbers);
 
-        if(KenoUi.sounds.on){
-            KenoUi.sounds.play.play()
+                var animatingIndex = 0;
+
+                function showNumber() {           
+                    setTimeout(function () {    
+                        var rect = KenoUi.clickables.numbers[numbers[animatingIndex]];
+                        if(rect.selected){
+                            rect.hit = true
+                            KenoUi.hitNumber(rect);
+                            hitTotal++;
+                            if(KenoUi.sounds.on){
+                                KenoUi.sounds.hit.play()
+                            }
+                        } else {
+                            rect.miss = true;
+                            KenoUi.missNumber(rect);
+                        } 
+                        animatingIndex++;
+                        
+                        if(animatingIndex == 14){
+                            roundResults(hitTotal);
+                            rounds--;
+                            if(rounds > 0 && !KenoUi.stopRound){
+                                setTimeout(playRound, KenoUi.gameSpeed.nextRoundTimeout);
+                            } else {
+                                KenoUi.stopDelay = false
+                                KenoUi.midRound = false;
+                                resetUi();
+                            }
+                        } else {
+                            showNumber();
+                        }
+                    }, 400)
+                }
+                
+                showNumber(); 
+            }
         }
 
         playRound();
@@ -871,3 +916,11 @@ KenoUi.resizeCanvas();
 canvas.addEventListener('click', KenoUi.onClick);
 
 window.addEventListener('resize', KenoUi.resizeCanvas, false);
+
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
