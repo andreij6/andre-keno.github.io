@@ -47,17 +47,17 @@ var Controls = {
             background: 'white'
         },
         heading: {
-            background: '#125089',
+            background: 'grey',
             text: 'white'
         },
         sound: {
-            selected_background: '#7389AE',
+            selected_background: '#125089',
             selected_text: 'white',
             available_background: 'white',
             available_text: 'black'
         },
         tempo: {
-            selected_background: '#7389AE',
+            selected_background: '#125089',
             selected_text: 'white',
             available_background: 'white',
             available_text: 'black'
@@ -251,7 +251,8 @@ Controls.Payout = function(rect, matrix){
 
     this.defaultStyle  = {background: Controls.style.payout.background, text: Controls.style.payout.text}
     this.wonStyle  = {background: Controls.style.payout.won, text: Controls.style.payout.text}
-
+    this.heading = { background: Controls.style.heading.background, text: Controls.style.heading.text }
+    
     this.draw = function(ctx, wonI){ 
         for(var i = 0; i < 11; i++){
             for(var j = 0; j < 2; j++){
@@ -263,13 +264,11 @@ Controls.Payout = function(rect, matrix){
 
                 if(this.payoutMatrix.length > i){
                     text = this.payoutMatrix[i][j];
-                    if(wonI == i) {
-                        console.log('adding wonStyle')
-                        style = this.wonStyle;
-                    }
+                    if(wonI == i) style = this.wonStyle;
                 }
 
-                ctx.clearRect(x - 1, y - 1, rect.w + 2, h + 2);
+                if(text === 'Hits' || text === 'Payout') style = this.heading; 
+                ctx.clearRect(x, y, rect.w, h);
                 ctx.fillStyle = style.background;
                 ctx.fillRect(x, y, rect.w, h);
                 ctx.fillStyle = style.text;
