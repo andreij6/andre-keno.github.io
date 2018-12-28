@@ -479,6 +479,7 @@ Controls.Wager = function(rect, wager){
         this.onClick = function(ctx){
             Audio.Settings();
             GameCanvas.wagers.update(ctx, this.wager)
+            GameCanvas.payout.update(ctx);
         }
     }
 
