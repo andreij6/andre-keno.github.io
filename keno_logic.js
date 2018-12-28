@@ -52,3 +52,5 @@ KenoLogic.matrix = function(count, wager){
     }
     return payoutStructure;
 }
+
+KenoLogic.bankroll = 500000;

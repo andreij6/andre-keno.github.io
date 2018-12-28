@@ -76,6 +76,7 @@ var KenoUi = {
         settings: {}
     },
     payouts: {},
+    bankroll: {},
     payoutMatrix: [['Hit', 'Payout']],
     stopRound: false,
     midRound: false,
@@ -162,6 +163,12 @@ KenoUi.draw = function(){
         ctx.fillStyle = KenoUi.style.controlsText;
         ctx.fillText('Clear All', x + (w / 2), y + (h / 2));
         KenoUi.clickables.controls[KenoUi.ids.clear] = { x: x, y: y, w: w, h: h, id: KenoUi.ids.clear }
+
+        var bankrollY  = y + h + KenoUi.dimenisons.boxMargin;
+        var width = w * 2 + KenoUi.dimenisons.boxMargin;
+
+        KenoUi.bankroll = {x: x, y: bankrollY, w: width, h: h};
+        KenoUi.drawBankroll();
 
         ctx.fillStyle = KenoUi.style.controlsBackground
         x = KenoUi.dimenisons.origin.x + horizontalControlWidth + KenoUi.dimenisons.boxMargin;
@@ -305,6 +312,16 @@ KenoUi.draw = function(){
     numberGrid();
     controls();
 };
+
+KenoUi.drawBankroll = function(){
+    var ctx = KenoUi.context;
+    var rect = KenoUi.bankroll;
+
+    ctx.fillStyle = 'green'
+    ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+    ctx.fillStyle = KenoUi.style.controlsText;
+    ctx.fillText('Bankroll: ' + numberWithCommas(KenoLogic.bankroll), rect.x + (rect.w / 4), rect.y + (rect.h / 2));
+}
 
 KenoUi.turboUi = function(){
     var ctx = KenoUi.context;
@@ -551,19 +568,27 @@ KenoUi.onClick = function(mouse){
     var play = function(playBtn){
         if(KenoUi.stopDelay) return;
 
+        var wager = 1;
+
+        for(var id in KenoUi.clickables.wager){
+            if(KenoUi.clickables.wager[id].selected) wager = parseInt(id);
+        }
+
+        if(wager > KenoLogic.bankroll) return;
+
         var roundResults = function(total){
             for(var i = 0; i < KenoUi.payoutMatrix.length; i++){
                 if(KenoUi.payoutMatrix[i][0] == total){
-                    if(KenoUi.sounds.on){
-                        KenoUi.sounds.won.play();
-                    }
-
-                    KenoUi.drawPayoutWon(i)
+                    if(KenoUi.sounds.on) KenoUi.sounds.won.play();
+                    KenoUi.drawPayoutWon(i);
+                    KenoLogic.bankroll += KenoUi.payoutMatrix[i][1];
+                    KenoUi.drawBankroll();
                     return;
                 }
             }
 
-            console.log('LOSER');
+            KenoLogic.bankroll -= wager;
+            KenoUi.drawBankroll();
         }
 
         var resetUi = function(){
@@ -616,7 +641,7 @@ KenoUi.onClick = function(mouse){
         }
 
         var playRound = function(){
-            if(KenoUi.stopRound){
+            if(KenoUi.stopRound || wager > KenoLogic.bankroll){
                 KenoUi.stopRound = false;
                 KenoUi.midRound = false;
                 return;
