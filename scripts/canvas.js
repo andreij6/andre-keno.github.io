@@ -177,7 +177,7 @@ GameCanvas.onClick = function(mouse){
 
 WebFont.load({
     google: {
-      families: ['Exo', 'Open Sans:bold']
+      families: ['Exo']
     },
     active: function() {
       GameCanvas.resize();

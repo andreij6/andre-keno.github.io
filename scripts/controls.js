@@ -91,8 +91,9 @@ Controls.QuickPick = function(rect){
 
     this.onClick = function(ctx){
         if(GameCanvas.playButton.inRound()) return;
-        GameCanvas.clearAll.onClick(ctx);
         var selected = Object.keys(Keno.selected).length == 15 ? [] : Object.keys(Keno.selected);
+        GameCanvas.clearAll.onClick(ctx);
+
         var picks = KenoLogic.quickSelections(selected);
         for(var idx in GameCanvas.numbers){
             for(var p in picks){
@@ -275,7 +276,6 @@ Controls.Payout = function(rect, matrix){
                 ctx.fillText(numberWithCommas(text), x + (rect.w / 2), y + (h / 2));
             }
         }
-
         var x = (rect.x + (0 * GameCanvas.dimenisons.boxMargin)) + rect.w * 0;
         var y = (rect.y + (11 * GameCanvas.dimenisons.boxMargin)) + GameCanvas.dimenisons.boxSize * 11;
         var h = GameCanvas.dimenisons.boxSize;

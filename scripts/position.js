@@ -10,19 +10,23 @@ var Keno = {
     style: {
         available_position: {
             background: 'white',
-            text: 'black'
+            text: 'black',
+            font: '16px Exo',
         },
         selected_position: {
-            background: '#2191FB',
-            text: 'white'
+            background: '#7D9FBE',
+            text: 'white',
+            font: '16px Exo'
         },
         missed_position: {
-            background: '#7389AE',
-            text: 'white'
+            background: 'grey',
+            text: 'white',
+            font: '16px Exo',
         },
         hit_position: {
-            background: '#DA2C38',
-            text: 'white'
+            background: 'green',
+            text: 'white',
+            font: '16px Exo'
         }
     },
     selected: {},
@@ -107,10 +111,12 @@ Keno.Position = function(rect, number, state){
             [Keno.position.selected]: selected,
         }[this.state];
         
-        ctx.clearRect(rect.x - 1, rect.y - 1, rect.w + 2, rect.h + 2);
         ctx.fillStyle = colors.background;
         ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.strokeStyle = colors.text;
+        ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
         ctx.fillStyle = colors.text;
+        ctx.font = colors.font;
         ctx.fillText(number, rect.x + (rect.w / 2), rect.y + (rect.h / 2));
      }
 }
