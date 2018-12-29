@@ -97,7 +97,7 @@ GameCanvas.draw = function(){
         y = GameCanvas.dimenisons.origin.y
         w = GameCanvas.dimenisons.boxSize * 2;
         h = ((GameCanvas.dimenisons.boxSize * 9) + (GameCanvas.dimenisons.boxMargin * 6)) / 3;
-        if(!('wagers' in GameCanvas)) GameCanvas.wagers = new Controls.Wager(new Keno.Rect(x,y,w,h), 1);
+        if(!('wagers' in GameCanvas)) GameCanvas.wagers = new Controls.Wager(new Keno.Rect(x,y,w,h));
         GameCanvas.wagers.draw(ctx);
 
         x = x + w + GameCanvas.dimenisons.boxMargin;

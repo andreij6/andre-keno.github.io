@@ -488,9 +488,9 @@ Controls.Round = function(rect, round){
     }
  }
 
-Controls.Wager = function(rect, wager){ 
+Controls.Wager = function(rect){ 
     this.rect = rect;
-    this.current_wager = wager
+    this.current_wager = KenoLogic.Wagers[0];
     this.clickables = {};
     this.increments = KenoLogic.Wagers;
 

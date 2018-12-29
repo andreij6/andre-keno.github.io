@@ -15,21 +15,21 @@ Controls.Play = function(rect){
         var total_hit = 0;
         numbers = shuffle(numbers);
         var animatingIdx = 0;
-        var last_hit;
+        var first_hit;
         var animateNumber = function(){
             setTimeout(function(){
-                last_hit = false;
+                first_hit = false;
                 var number = numbers[animatingIdx];
                 for(var idx in GameCanvas.numbers){
                     if(GameCanvas.numbers[idx].number == number){
                         var before = total_hit;
                         total_hit += GameCanvas.numbers[idx].selected(ctx);
-                        if(total_hit > before) last_hit = true;
+                        if((total_hit > before) && animatingIdx == 0) first_hit = true;
                     }
                 }
                 animatingIdx++;
                 if(animatingIdx == KenoLogic.MaxDraw){
-                    GameCanvas.payout.result(ctx, total_hit, last_hit);
+                    GameCanvas.payout.result(ctx, total_hit, first_hit);
                     GameCanvas.playButton.rounds_left--;
                     if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
                         setTimeout(GameCanvas.playButton.round, 1000);
@@ -156,18 +156,18 @@ Controls.Payout = function(rect, matrix){
     this.rect = rect;
     this.payoutMatrix = matrix;
     
-    this.result = function(ctx, total, last_drawn_hit){
+    this.result = function(ctx, total, first_drawn_hit){
         for(var i = 0; i < this.payoutMatrix.length; i++){
             if(this.payoutMatrix[i][0] == total){
                 var winnings = this.payoutMatrix[i][1]
-                if(last_drawn_hit) {
+                if(first_drawn_hit) {
                     winnings = winnings * 4;
                     this.draw(ctx, i, true);
                 } else {
                     this.draw(ctx, i);
                 }
                 GameCanvas.bankroll.update(ctx, winnings);
-                if(last_drawn_hit){
+                if(first_drawn_hit){
                     Audio.BigWin();
                 } else {
                     Audio.Won();
