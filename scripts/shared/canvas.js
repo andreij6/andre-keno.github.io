@@ -59,6 +59,11 @@ GameCanvas.draw = function(){
         ctx.fillText(Config.game, GameCanvas.dimenisons.origin.x + (977 / 2), GameCanvas.dimenisons.origin.y - 44);
 
         ctx.font = GameCanvas.style.font;
+
+        ctx.textAlign = 'left';
+        GameCanvas.rules = new Keno.Rules(new Keno.Rect(GameCanvas.dimenisons.origin.x, GameCanvas.dimenisons.origin.y - 60, 75, 20));
+        ctx.fillText('Rules', GameCanvas.dimenisons.origin.x, GameCanvas.dimenisons.origin.y - 44);
+        ctx.textAlign = 'center';
     }
 
     var grid = function(){
@@ -173,7 +178,7 @@ GameCanvas.onClick = function(mouse){
     }
 
     var clickables = [].concat(GameCanvas.numbers)
-                       .concat([GameCanvas.clearAll, GameCanvas.quickPick, GameCanvas.playButton])
+                       .concat([GameCanvas.clearAll, GameCanvas.quickPick, GameCanvas.playButton, GameCanvas.rules])
                        .concat(GameCanvas.sound.getClickables())
                        .concat(GameCanvas.tempo.getClickables())
                        .concat(GameCanvas.rounds.getClickables())

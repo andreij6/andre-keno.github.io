@@ -5,7 +5,8 @@ var Keno = {
         available: 'available',
         selected: 'selected',
         hit: 'hit',
-        miss: 'miss'
+        miss: 'miss',
+        multiplier: '2x'
     },
     style: {
         available_position: {
@@ -27,10 +28,23 @@ var Keno = {
             background: 'green',
             text: 'white',
             font: '16px Exo'
+        },
+        multiplier: {
+            background: 'yellow',
+            text: 'black',
+            font: '16px Exo'
         }
     },
     selected: {},
     MaxSelections: KenoLogic.MaxSelections
+}
+
+Keno.Rules = function(rect){
+    this.rect = rect;
+
+    this.onClick = function(ctx){
+        console.log(Config.description);
+    }
 }
 
 Keno.Position = function(rect, number, state){
@@ -57,6 +71,11 @@ Keno.Position = function(rect, number, state){
         'text': Keno.style.available_position.text,
         'background': Keno.style.available_position.background
     }
+
+    var multiplier = {
+        'text': Keno.style.multiplier.text,
+        'background': Keno.style.multiplier.background
+    }
     
     this.onClick = function(ctx){
         if(GameCanvas.playButton && GameCanvas.playButton.inRound()) return;
@@ -81,7 +100,7 @@ Keno.Position = function(rect, number, state){
     }
 
     this.reset = function(ctx){
-        if(this.state == Keno.position.hit){
+        if(this.state == Keno.position.hit || this.state == Keno.position.multiplier){
             this.state = Keno.position.selected;
             this.draw(ctx);
         } else if(this.state == Keno.position.miss){
@@ -90,7 +109,7 @@ Keno.Position = function(rect, number, state){
         }
     }
 
-    
+    //rename drawn
     this.selected = function(ctx){
         var hit = 0;
         if(this.state == Keno.position.available){
@@ -103,6 +122,15 @@ Keno.Position = function(rect, number, state){
         return hit;
     }
 
+    this.multiplier = function(ctx) {
+        if(this.state == Keno.position.available){
+            this.state = Keno.position.miss;
+        } else if(this.state == Keno.position.selected || this.state == Keno.position.hit){
+            this.state = Keno.position.multiplier;
+        }
+        this.draw(ctx);
+    }
+
 
     this.draw = function(ctx){
         var colors = {
@@ -110,6 +138,7 @@ Keno.Position = function(rect, number, state){
             [Keno.position.hit]: hit,
             [Keno.position.miss]: miss,
             [Keno.position.selected]: selected,
+            [Keno.position.multiplier]: multiplier
         }[this.state];
         
         ctx.fillStyle = colors.background;

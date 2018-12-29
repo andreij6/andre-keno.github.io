@@ -15,16 +15,16 @@ Controls.Play = function(rect){
         var total_hit = 0;
         numbers = shuffle(numbers);
         var animatingIdx = 0;
-        var last_hit;
+        var last_hit = false;
         var animateNumber = function(){
             setTimeout(function(){
-                last_hit = false;
                 var number = numbers[animatingIdx];
                 for(var idx in GameCanvas.numbers){
                     if(GameCanvas.numbers[idx].number == number){
                         var before = total_hit;
                         total_hit += GameCanvas.numbers[idx].selected(ctx);
-                        if(total_hit > before) last_hit = true;
+                        if(total_hit > before && animatingIdx + 1 == KenoLogic.MaxDraw) last_hit = true;
+                        if(last_hit) GameCanvas.numbers[idx].multiplier(ctx)
                     }
                 }
                 animatingIdx++;

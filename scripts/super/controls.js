@@ -24,6 +24,7 @@ Controls.Play = function(rect){
                         var before = total_hit;
                         total_hit += GameCanvas.numbers[idx].selected(ctx);
                         if((total_hit > before) && animatingIdx == 0) first_hit = true;
+                        if(first_hit && animatingIdx == 0) GameCanvas.numbers[idx].multiplier(ctx)
                     }
                 }
                 animatingIdx++;
