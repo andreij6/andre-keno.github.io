@@ -15,10 +15,9 @@ Controls.Play = function(rect){
         var total_hit = 0;
         numbers = shuffle(numbers);
         var animatingIdx = 0;
-        var first_hit;
+        var first_hit = false;
         var animateNumber = function(){
             setTimeout(function(){
-                first_hit = false;
                 var number = numbers[animatingIdx];
                 for(var idx in GameCanvas.numbers){
                     if(GameCanvas.numbers[idx].number == number){
