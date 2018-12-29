@@ -254,6 +254,10 @@ Controls.Play = function(rect){
             this.terminate = true;
             this.update(ctx, this.states.waiting);
         } else {
+            if(isNaN(GameCanvas.rounds.current_round)){
+                GameCanvas.rounds.current_round = Math.floor(KenoLogic.bankroll / GameCanvas.wagers.current_wager);
+            } 
+
             this.rounds_left = GameCanvas.rounds.current_round;
             this.update(ctx, this.rounds_left == 1 ? this.states.waiting : this.states.stop);
         }
@@ -266,7 +270,7 @@ Controls.Play = function(rect){
     var playConfig = { background: Controls.style.play.background, text: Controls.style.play.text, data: 'Play'}
 
     this.draw = function(ctx){
-        stopConfig.extra = 'Round ' + (GameCanvas.rounds.current_round - (this.rounds_left - 1));
+        stopConfig.extra = 'Round ' + (GameCanvas.rounds.current_round - (this.rounds_left - 1)) + ' of ' + numberWithCommas(GameCanvas.rounds.current_round);
 
         var configs = {
             [this.states.waiting]: waitConfig,
@@ -480,7 +484,7 @@ Controls.Round = function(rect, round){
     this.rect = rect;
     this.current_round = round
     this.clickables = {};
-    this.increments = [1, 5, 10, 25, 50]
+    this.increments = [1, 5, 25, 50, 'Max']
 
     function roundActor(round){
         this.round = round;
@@ -509,6 +513,8 @@ Controls.Round = function(rect, round){
 
             var colors = this.current_round === this.increments[key] ? selected : available;
             
+            if(key == 4 && this.current_round > 50) colors = selected;
+            
             if(GameCanvas.playButton && colors == available){
                 if(GameCanvas.playButton.inRound()) {
                     colors = disabled;
@@ -525,7 +531,7 @@ Controls.Round = function(rect, round){
     }
 
     this.getClickables = function(){
-        return [this.clickables[1], this.clickables[5], this.clickables[10], this.clickables[25], this.clickables[50]]
+        return [this.clickables[1], this.clickables[5], this.clickables[25], this.clickables[50], this.clickables['Max']]
     }
  }
 
