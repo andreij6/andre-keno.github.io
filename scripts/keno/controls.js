@@ -3,6 +3,10 @@
 Controls.Payout = function(rect, matrix){
     this.rect = rect;
     this.payoutMatrix = matrix;
+
+    this.setRect = function(rect){
+        this.rect = rect;
+    }
     
     this.result = function(ctx, total){
         for(var i = 0; i < this.payoutMatrix.length; i++){

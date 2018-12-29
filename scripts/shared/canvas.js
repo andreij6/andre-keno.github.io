@@ -5,21 +5,22 @@ var ctx = canvas.getContext('2d');
 
 var GameCanvas = {
     dimenisons: {
-        width: 1280,
-        height: 720,
-        canvas_width: 1280,
-        canvas_height: 720, 
+        width: 1680,
+        height: 1050,
+        canvas_width: 1680,
+        canvas_height: 1050, 
         ratio: 16/9,
         boxSize: 50,
         boxMargin: 6,
         origin: {
-            x: 25,
-            y: 25
+            x: 1680 / 5,
+            y: 1050 / 8
         }
     },
     numbers: [],
     style: {
-        font: '16px Exo'
+        font: '16px Exo',
+        title_font: '36px Exo'
     }
 };
 
@@ -40,25 +41,34 @@ GameCanvas.resize = function(){
         canvas.style.height = window.innerWidth / GameCanvas.dimenisons.ratio + 'px';
         GameCanvas.dimenisons.canvas_height = window.innerWidth / GameCanvas.dimenisons.ratio;
     } 
-    
+
     GameCanvas.draw();
 }
 
 GameCanvas.draw = function(){
 
     var setup = function(){
-        ctx.font = GameCanvas.style.font;
+        ctx.fillStyle = 'black'
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillRect(0,0, canvas.width, canvas.height);
+
+        ctx.font = GameCanvas.style.title_font;
+        ctx.fillStyle = 'white'
+        ctx.strokeStyle = 'white'
+        ctx.fillText(Config.game, GameCanvas.dimenisons.origin.x + (977 / 2), GameCanvas.dimenisons.origin.y - 44);
+
+        ctx.font = GameCanvas.style.font;
     }
 
     var grid = function(){
+        var originalX = GameCanvas.dimenisons.origin.x + GameCanvas.dimenisons.boxSize * 4 + GameCanvas.dimenisons.boxMargin * 2;
+
         if(GameCanvas.numbers.length == 0){
             var count = 1;
             for(var i = 0; i < 10; i++){
                 for(var j = 0; j < 8; j++){
-                    var x = (GameCanvas.dimenisons.origin.x + (j * GameCanvas.dimenisons.boxMargin)) + GameCanvas.dimenisons.boxSize * j;
+                    var x = (originalX + (j * GameCanvas.dimenisons.boxMargin)) + GameCanvas.dimenisons.boxSize * j;
                     var y = (GameCanvas.dimenisons.origin.y + (i * GameCanvas.dimenisons.boxMargin)) + GameCanvas.dimenisons.boxSize * i;
                     var w = GameCanvas.dimenisons.boxSize;
                     var h = GameCanvas.dimenisons.boxSize;
@@ -75,7 +85,7 @@ GameCanvas.draw = function(){
     var controls = function(){
         var horizontalControlWidth = (GameCanvas.dimenisons.boxSize * 4) + (3 * GameCanvas.dimenisons.boxMargin);
 
-        var x = GameCanvas.dimenisons.origin.x;
+        var x = GameCanvas.dimenisons.origin.x + GameCanvas.dimenisons.boxSize * 4 + GameCanvas.dimenisons.boxMargin * 2;
         var y = GameCanvas.dimenisons.origin.y + (GameCanvas.dimenisons.boxSize * 10) + (GameCanvas.dimenisons.boxMargin * 10);
         var w = horizontalControlWidth;
         var h = GameCanvas.dimenisons.boxSize;
@@ -84,16 +94,24 @@ GameCanvas.draw = function(){
         GameCanvas.clearAll.draw(ctx);
 
         var bankrollY  = y + h + GameCanvas.dimenisons.boxMargin;
-        var width = w * 2 + GameCanvas.dimenisons.boxMargin;
+        w = w * 2 + GameCanvas.dimenisons.boxMargin
 
-        GameCanvas.bankroll = new Controls.Bankroll(new Keno.Rect(x, bankrollY, width, h))
+        GameCanvas.bankroll = new Controls.Bankroll(new Keno.Rect(x, bankrollY, w, h))
         GameCanvas.bankroll.draw(ctx);
 
-        x = GameCanvas.dimenisons.origin.x + horizontalControlWidth + GameCanvas.dimenisons.boxMargin;
+        x = GameCanvas.dimenisons.origin.x + GameCanvas.dimenisons.boxSize * 4 + GameCanvas.dimenisons.boxMargin * 2;
+        w = horizontalControlWidth;
+        x = x + horizontalControlWidth + GameCanvas.dimenisons.boxMargin;
         GameCanvas.quickPick = new Controls.QuickPick(new Keno.Rect(x,y,w,h));
         GameCanvas.quickPick.draw(ctx);
 
-        x = GameCanvas.dimenisons.origin.x + (8 * GameCanvas.dimenisons.boxSize) + (8 * GameCanvas.dimenisons.boxMargin); 
+        x = GameCanvas.dimenisons.origin.x;
+        y = GameCanvas.dimenisons.origin.y;
+        w = GameCanvas.dimenisons.boxSize * 2;
+        if(!('payout' in GameCanvas)) GameCanvas.payout = new Controls.Payout(new Keno.Rect(x,y,w,h), [['Hits','Payout']]);
+        GameCanvas.payout.draw(ctx);
+
+        x = GameCanvas.dimenisons.origin.x + (12 * GameCanvas.dimenisons.boxSize) + (10 * GameCanvas.dimenisons.boxMargin); 
         y = GameCanvas.dimenisons.origin.y
         w = GameCanvas.dimenisons.boxSize * 2;
         h = ((GameCanvas.dimenisons.boxSize * 9) + (GameCanvas.dimenisons.boxMargin * 6)) / 3;
@@ -106,7 +124,7 @@ GameCanvas.draw = function(){
         if(!('rounds' in GameCanvas)) GameCanvas.rounds = new Controls.Round(new Keno.Rect(x,y,w,h), 1);
         GameCanvas.rounds.draw(ctx);
 
-        x = GameCanvas.dimenisons.origin.x + (8 * GameCanvas.dimenisons.boxSize) + (8 * GameCanvas.dimenisons.boxMargin);
+        x = GameCanvas.dimenisons.origin.x + (12 * GameCanvas.dimenisons.boxSize) + (10 * GameCanvas.dimenisons.boxMargin);
         y = GameCanvas.dimenisons.origin.y + (GameCanvas.dimenisons.boxSize * 9) + (GameCanvas.dimenisons.boxMargin * 9);
         w = w + w + GameCanvas.dimenisons.boxMargin;
         h = GameCanvas.dimenisons.boxSize * 3 + GameCanvas.dimenisons.boxMargin * 2;
@@ -114,13 +132,9 @@ GameCanvas.draw = function(){
         GameCanvas.playButton.draw(ctx);
 
         x = x + w + GameCanvas.dimenisons.boxMargin;
-        y = GameCanvas.dimenisons.origin.y;
-        w = w / 2;
-        if(!('payout' in GameCanvas)) GameCanvas.payout = new Controls.Payout(new Keno.Rect(x,y,w,h), [['Hits','Payout']]);
-        GameCanvas.payout.draw(ctx);
-
-        x = x + (w * 2) + (GameCanvas.dimenisons.boxMargin * 2);
         h = GameCanvas.dimenisons.boxSize * 2;
+        y = GameCanvas.dimenisons.origin.y;
+        w = GameCanvas.dimenisons.boxSize * 2;
         if(!('sound' in GameCanvas)) GameCanvas.sound = new Controls.Sound(new Keno.Rect(x,y,w,h), true);
         GameCanvas.sound.draw(ctx);
 
@@ -134,6 +148,7 @@ GameCanvas.draw = function(){
     setup();
     grid();
     controls();
+    
 }
 
 GameCanvas.onClick = function(mouse){
