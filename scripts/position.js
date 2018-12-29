@@ -59,6 +59,7 @@ Keno.Position = function(rect, number, state){
     }
     
     this.onClick = function(ctx){
+        if(GameCanvas.playButton && GameCanvas.playButton.inRound()) return;
         if(this.state == Keno.position.available && Object.keys(Keno.selected).length === Keno.MaxSelections) return;
         this.state = this.state == Keno.position.available ? Keno.position.selected : Keno.position.available;
         if(this.state == Keno.position.selected){

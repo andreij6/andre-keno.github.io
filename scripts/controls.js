@@ -134,6 +134,55 @@ Controls.Play = function(rect){
         return this.current_state == this.states.waiting || this.current_state == this.states.stop;
     }
 
+    this.turboRound = function(ctx, numbers){
+        var total_hit = 0;
+
+        for(var idx in GameCanvas.numbers){
+            for(var nIdx in numbers){
+                if(numbers[nIdx] == GameCanvas.numbers[idx].number){
+                    total_hit += GameCanvas.numbers[idx].selected(ctx)
+                }
+            }
+        }
+        GameCanvas.payout.result(ctx, total_hit);
+        GameCanvas.playButton.rounds_left--;
+        
+        if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
+            setTimeout(GameCanvas.playButton.round, 1000)
+        } else {
+            GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play)
+        }
+    }
+
+    this.normalRound = function(ctx, numbers){
+        var total_hit = 0;
+        numbers = shuffle(numbers);
+        var animatingIdx = 0;
+        var animateNumber = function(){
+            setTimeout(function(){
+                var number = numbers[animatingIdx];
+                for(var idx in GameCanvas.numbers){
+                    if(GameCanvas.numbers[idx].number == number){
+                        total_hit += GameCanvas.numbers[idx].selected(ctx);
+                    }
+                }
+                animatingIdx++;
+                if(animatingIdx == 15){
+                    GameCanvas.payout.result(ctx, total_hit);
+                    GameCanvas.playButton.rounds_left--;
+                    if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
+                        setTimeout(GameCanvas.playButton.round, 1000);
+                    } else {
+                        GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play);
+                    }
+                } else {
+                    animateNumber();
+                }
+            }, 400);
+        }
+        animateNumber();
+    }
+
     this.round = function(ctx){
         var canvas = document.querySelector('canvas');
         var ctx = canvas.getContext('2d');
@@ -141,67 +190,57 @@ Controls.Play = function(rect){
         GameCanvas.playButton.draw(ctx);
 
         if(GameCanvas.playButton.rounds_left == 1){
-            GameCanvas.playButton.current_state = GameCanvas.playButton.states.waiting;
-            GameCanvas.playButton.draw(ctx);
+            GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.waiting);
         }
 
         if(!GameCanvas.playButton.terminate){
+
             for(var i in GameCanvas.numbers){
                 GameCanvas.numbers[i].reset(ctx);
             } 
             var numbers = KenoLogic.makeSelections();
-            var total_hit = 0;
 
             if(GameCanvas.tempo.isNormal == false){
-                for(var idx in GameCanvas.numbers){
-                    for(var nIdx in numbers){
-                        if(numbers[nIdx] == GameCanvas.numbers[idx].number){
-                            total_hit += GameCanvas.numbers[idx].selected(ctx)
-                        }
-                    }
-                }
-                GameCanvas.payout.result(ctx, total_hit);
-                GameCanvas.playButton.rounds_left--;
-                
-                if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-                    setTimeout(GameCanvas.playButton.round, 1000)
+                if(GameCanvas.playButton.rounds_left == GameCanvas.rounds.current_round){
+                    setTimeout(function(){ GameCanvas.playButton.turboRound(ctx, numbers)}, 750);
                 } else {
-                    GameCanvas.playButton.current_state = GameCanvas.playButton.states.play;
-                    GameCanvas.playButton.draw(ctx);
+                    GameCanvas.playButton.turboRound(ctx, numbers);
                 }
             } else {
-                numbers = shuffle(numbers);
-                var animatingIdx = 0;
-                var animateNumber = function(){
-                    setTimeout(function(){
-                        var number = numbers[animatingIdx];
-                        for(var idx in GameCanvas.numbers){
-                            if(GameCanvas.numbers[idx].number == number){
-                                total_hit += GameCanvas.numbers[idx].selected(ctx);
-                            }
-                        }
-                        animatingIdx++;
-                        if(animatingIdx == 15){
-                            GameCanvas.payout.result(ctx, total_hit);
-                            GameCanvas.playButton.rounds_left--;
-                            if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-                                setTimeout(GameCanvas.playButton.round, 1000);
-                            } else {
-                                GameCanvas.playButton.current_state = GameCanvas.playButton.states.play;
-                                GameCanvas.playButton.draw(ctx);
-                            }
-                        } else {
-                            animateNumber();
-                        }
-                    }, 400);
-                }
-                animateNumber();
+                GameCanvas.playButton.normalRound(ctx, numbers);
             }
         } else {
             GameCanvas.playButton.terminate = false;
-            GameCanvas.playButton.current_state = GameCanvas.playButton.states.play;
-            GameCanvas.playButton.draw(ctx);
+            GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play);
         }
+    }
+
+    this.update = function(ctx, state){
+        if(this.current_state == state) return;
+        var that = this;
+
+        var checkTransition = function(from, to, proposed){
+            return that.current_state === from && proposed === to;
+        }
+
+        if(checkTransition(this.states.stop, this.states.waiting, state)){
+            this.current_state = state;
+
+        } else if(checkTransition(this.states.waiting, this.states.play, state)){
+            this.current_state = state;
+
+        } else if(checkTransition(this.states.stop, this.states.play, state)){
+            this.current_state = state;
+
+        } else if(checkTransition(this.states.play, this.states.stop, state)){
+            this.current_state = state;
+            this.round(ctx);
+        } else if(checkTransition(this.states.play, this.states.waiting, state)){
+            this.current_state = state;
+            this.round(ctx);
+        }
+
+        this.draw(ctx);
     }
 
     this.onClick = function(ctx){
@@ -213,19 +252,16 @@ Controls.Play = function(rect){
 
         if(this.current_state == this.states.stop){
             this.terminate = true;
-            this.current_state = this.states.waiting;
-            this.draw(ctx);
+            this.update(ctx, this.states.waiting);
         } else {
             this.rounds_left = GameCanvas.rounds.current_round;
-            this.current_state = this.rounds_left == 1 ? this.states.waiting : this.states.stop;
-            this.draw(ctx);
-            this.round(ctx);
+            this.update(ctx, this.rounds_left == 1 ? this.states.waiting : this.states.stop);
         }
 
         Audio.Play();
     }
 
-    var waitConfig = { background: Controls.style.wait.background, text: Controls.style.wait.text, data: 'Wait'}
+    var waitConfig = { background: Controls.style.wait.background, text: Controls.style.wait.text, data: 'Final Round'}
     var stopConfig = { background: Controls.style.stop.background, text: Controls.style.stop.text, data: 'Stop'}
     var playConfig = { background: Controls.style.play.background, text: Controls.style.play.text, data: 'Play'}
 
