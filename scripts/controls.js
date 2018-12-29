@@ -189,11 +189,15 @@ Controls.Play = function(rect){
         GameCanvas.payout.draw(ctx);
         GameCanvas.playButton.draw(ctx);
 
-        if(GameCanvas.playButton.rounds_left == 1){
-            GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.waiting);
+        if(GameCanvas.wagers.current_wager > KenoLogic.bankroll){ 
+            GameCanvas.playButton.terminate =  true;
         }
 
         if(!GameCanvas.playButton.terminate){
+
+            if(GameCanvas.playButton.rounds_left == 1){
+                GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.waiting);
+            }
 
             for(var i in GameCanvas.numbers){
                 GameCanvas.numbers[i].reset(ctx);
@@ -233,9 +237,11 @@ Controls.Play = function(rect){
             this.current_state = state;
 
         } else if(checkTransition(this.states.play, this.states.stop, state)){
+            GameCanvas.playButton.terminate = false;
             this.current_state = state;
             this.round(ctx);
         } else if(checkTransition(this.states.play, this.states.waiting, state)){
+            GameCanvas.playButton.terminate = false;
             this.current_state = state;
             this.round(ctx);
         }
@@ -254,7 +260,7 @@ Controls.Play = function(rect){
             this.terminate = true;
             this.update(ctx, this.states.waiting);
         } else {
-            if(isNaN(GameCanvas.rounds.current_round)){
+            if(GameCanvas.rounds.isMax()){
                 GameCanvas.rounds.current_round = Math.floor(KenoLogic.bankroll / GameCanvas.wagers.current_wager);
             } 
 
@@ -484,7 +490,7 @@ Controls.Round = function(rect, round){
     this.rect = rect;
     this.current_round = round
     this.clickables = {};
-    this.increments = [1, 5, 25, 50, 'Max']
+    this.increments = [1, 10, 25, 50, 'Max']
 
     function roundActor(round){
         this.round = round;
@@ -502,6 +508,10 @@ Controls.Round = function(rect, round){
         this.draw(ctx);
     }
 
+    this.isMax = function(){
+        return isNaN(this.current_round) || (this.current_round != 1 && this.current_round != 10 && this.current_round != 25 && this.current_round != 50)
+    }
+
     var available = { text: Controls.style.round.available_text, background: Controls.style.round.available_background}
     var selected = {text: Controls.style.round.selected_text, background: Controls.style.round.selected_background }
     var disabled = {text: Controls.style.round.disabled_text, background: Controls.style.round.disabled_background }
@@ -513,7 +523,7 @@ Controls.Round = function(rect, round){
 
             var colors = this.current_round === this.increments[key] ? selected : available;
             
-            if(key == 4 && this.current_round > 50) colors = selected;
+            if(key == 4 && this.isMax()) colors = selected;
             
             if(GameCanvas.playButton && colors == available){
                 if(GameCanvas.playButton.inRound()) {
@@ -531,7 +541,7 @@ Controls.Round = function(rect, round){
     }
 
     this.getClickables = function(){
-        return [this.clickables[1], this.clickables[5], this.clickables[25], this.clickables[50], this.clickables['Max']]
+        return [this.clickables[this.increments[0]], this.clickables[this.increments[1]], this.clickables[this.increments[2]], this.clickables[this.increments[3]], this.clickables[this.increments[4]]]
     }
  }
 
@@ -583,7 +593,7 @@ Controls.Wager = function(rect, wager){
     }
 
     this.getClickables = function(){
-        return [this.clickables[1], this.clickables[5], this.clickables[10]]
+        return [this.clickables[this.increments[0]], this.clickables[this.increments[1]], this.clickables[this.increments[2]]]
     }
 }
 
