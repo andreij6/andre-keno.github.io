@@ -30,7 +30,7 @@ var Keno = {
         }
     },
     selected: {},
-    MaxSelections: 15
+    MaxSelections: KenoLogic.MaxSelections
 }
 
 Keno.Position = function(rect, number, state){

@@ -1,6 +1,9 @@
 'use strict'
 
-var KenoLogic = { };
+var KenoLogic = {
+    MaxDraw: 15,
+    MaxSelections: 15
+ };
 
 KenoLogic.makeSelections = function(){
     var selections = [];

@@ -22,11 +22,12 @@ Audio.files = {
   clear: new sound('assets/sound/clear.wav'),
   control: new sound('assets/sound/control_check.wav'),
   hit: new sound('assets/sound/hit.wav'),
-  //play: new sound('assets/sound/play.wav'),
+  play: new sound('assets/sound/winner.wav'),
+  bigWin: new sound('assets/sound/winner.wav')
 }
 
 Audio.Play = function(){
-  //if(GameCanvas.sound.on) Audio.files.control.play();
+  //if(GameCanvas.sound.on) Audio.files.bigWin.play();
 }
 
 Audio.Settings = function(){
@@ -43,6 +44,10 @@ Audio.QuickPick = function(){
 
 Audio.Won = function(){
   if(GameCanvas.sound.on) Audio.files.won.play();
+}
+
+Audio.BigWin = function(){
+  if(GameCanvas.sound.on) Audio.files.bigWin.play();
 }
 
 Audio.Select = function(){

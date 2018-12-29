@@ -1,5 +1,6 @@
 'use strict';
 
+
 var Controls = {
     style: {
         bankroll: {
@@ -73,56 +74,6 @@ var Controls = {
     }
 };
 
-Controls.ClearAll = function(rect){
-    this.rect = rect;
-
-    this.onClick = function(ctx){
-        if(GameCanvas.playButton.inRound()) return;
-        Keno.selected = {};
-        for(var i in GameCanvas.numbers){
-            GameCanvas.numbers[i].update(ctx, Keno.position.available);
-        }
-        GameCanvas.payout.update(ctx);
-        Audio.ClearAll();
-    }
-
-    this.draw = function(ctx){
-        ctx.fillStyle = Controls.style.clearAll.background
-        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
-        ctx.fillStyle = Controls.style.clearAll.text;
-        ctx.fillText('Clear All', rect.x + (rect.w / 2), rect.y + (rect.h / 2));
-    }
-}
-
-Controls.QuickPick = function(rect){
-    this.rect = rect;
-
-    this.onClick = function(ctx){
-        if(GameCanvas.playButton.inRound()) return;
-        var selected = Object.keys(Keno.selected).length == 15 ? [] : Object.keys(Keno.selected);
-        GameCanvas.clearAll.onClick(ctx);
-
-        var picks = KenoLogic.quickSelections(selected);
-        for(var idx in GameCanvas.numbers){
-            for(var p in picks){
-                if(picks[p] == GameCanvas.numbers[idx].number){
-                    GameCanvas.numbers[idx].update(ctx, Keno.position.selected);
-                }
-            }
-        }
-        for(var i in picks) Keno.selected[picks[i]] = i;        
-        GameCanvas.payout.update(ctx);
-        Audio.QuickPick();
-    }
-
-    this.draw = function(ctx){
-        ctx.fillStyle = Controls.style.quickPick.background;
-        ctx.fillRect(rect.x, rect.y,rect.w, rect.h);
-        ctx.fillStyle = Controls.style.quickPick.text;
-        ctx.fillText('Quick Picks', rect.x + (rect.w / 2), rect.y + (rect.h / 2));
-    }
-}
-
 Controls.Play = function(rect){
     this.rect = rect;
     this.states = { waiting: 'wait', play: 'play', stop: 'stop' }
@@ -167,7 +118,7 @@ Controls.Play = function(rect){
                     }
                 }
                 animatingIdx++;
-                if(animatingIdx == 15){
+                if(animatingIdx == KenoLogic.MaxDraw){
                     GameCanvas.payout.result(ctx, total_hit);
                     GameCanvas.playButton.rounds_left--;
                     if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
@@ -295,61 +246,53 @@ Controls.Play = function(rect){
     }
 }
 
-Controls.Payout = function(rect, matrix){
+Controls.ClearAll = function(rect){
     this.rect = rect;
-    this.payoutMatrix = matrix;
-    
-    this.result = function(ctx, total){
-        for(var i = 0; i < this.payoutMatrix.length; i++){
-            if(this.payoutMatrix[i][0] == total){
-                this.draw(ctx, i);
-                GameCanvas.bankroll.update(ctx, this.payoutMatrix[i][1]);
-                Audio.Won();
-                return;
-            }
+
+    this.onClick = function(ctx){
+        if(GameCanvas.playButton.inRound()) return;
+        Keno.selected = {};
+        for(var i in GameCanvas.numbers){
+            GameCanvas.numbers[i].update(ctx, Keno.position.available);
         }
-        GameCanvas.bankroll.update(ctx, -GameCanvas.wagers.current_wager);
+        GameCanvas.payout.update(ctx);
+        Audio.ClearAll();
     }
 
-    this.update = function(ctx){
-        var matrix = KenoLogic.matrix(Object.keys(Keno.selected).length, GameCanvas.wagers.current_wager);
-        matrix.unshift(['Hits', 'Payout']);
-        this.payoutMatrix = matrix;
-        this.draw(ctx);
+    this.draw = function(ctx){
+        ctx.fillStyle = Controls.style.clearAll.background
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.fillStyle = Controls.style.clearAll.text;
+        ctx.fillText('Clear All', rect.x + (rect.w / 2), rect.y + (rect.h / 2));
     }
+}
 
-    this.defaultStyle  = {background: Controls.style.payout.background, text: Controls.style.payout.text}
-    this.wonStyle  = {background: Controls.style.payout.won, text: Controls.style.payout.text}
-    this.heading = { background: Controls.style.heading.background, text: Controls.style.heading.text }
-    
-    this.draw = function(ctx, wonI){ 
-        for(var i = 0; i < 11; i++){
-            for(var j = 0; j < 2; j++){
-                var x = (rect.x + (j * GameCanvas.dimenisons.boxMargin)) + rect.w * j;
-                var y = (rect.y + (i * GameCanvas.dimenisons.boxMargin)) + GameCanvas.dimenisons.boxSize * i;
-                var h = GameCanvas.dimenisons.boxSize;
-                var text = '--'; 
-                var style = this.defaultStyle;
+Controls.QuickPick = function(rect){
+    this.rect = rect;
 
-                if(this.payoutMatrix.length > i){
-                    text = this.payoutMatrix[i][j];
-                    if(wonI == i) style = this.wonStyle;
+    this.onClick = function(ctx){
+        if(GameCanvas.playButton.inRound()) return;
+        var selected = Object.keys(Keno.selected).length == KenoLogic.MaxDraw ? [] : Object.keys(Keno.selected);
+        GameCanvas.clearAll.onClick(ctx);
+
+        var picks = KenoLogic.quickSelections(selected);
+        for(var idx in GameCanvas.numbers){
+            for(var p in picks){
+                if(picks[p] == GameCanvas.numbers[idx].number){
+                    GameCanvas.numbers[idx].update(ctx, Keno.position.selected);
                 }
-
-                if(text === 'Hits' || text === 'Payout') style = this.heading; 
-                ctx.clearRect(x, y, rect.w, h);
-                ctx.fillStyle = style.background;
-                ctx.fillRect(x, y, rect.w, h);
-                ctx.fillStyle = style.text;
-                ctx.fillText(numberWithCommas(text), x + (rect.w / 2), y + (h / 2));
             }
         }
-        var x = (rect.x + (0 * GameCanvas.dimenisons.boxMargin)) + rect.w * 0;
-        var y = (rect.y + (11 * GameCanvas.dimenisons.boxMargin)) + GameCanvas.dimenisons.boxSize * 11;
-        var h = GameCanvas.dimenisons.boxSize;
-        var w = rect.w * 2 + GameCanvas.dimenisons.boxMargin;
-        ctx.fillStyle = Controls.style.empty.background;
-        ctx.fillRect(x, y, w, h);
+        for(var i in picks) Keno.selected[picks[i]] = i;        
+        GameCanvas.payout.update(ctx);
+        Audio.QuickPick();
+    }
+
+    this.draw = function(ctx){
+        ctx.fillStyle = Controls.style.quickPick.background;
+        ctx.fillRect(rect.x, rect.y,rect.w, rect.h);
+        ctx.fillStyle = Controls.style.quickPick.text;
+        ctx.fillText('Quick Picks', rect.x + (rect.w / 2), rect.y + (rect.h / 2));
     }
 }
 
@@ -630,17 +573,4 @@ Controls.Bankroll = function(rect){
         ctx.fillStyle = Controls.style.bankroll.text;
         ctx.fillText('Bankroll: ' + numberWithCommas(KenoLogic.bankroll), rect.x + (rect.w / 4), rect.y + (rect.h / 2));
     }
-}
-
-function numberWithCommas(x) {
-    if(isNaN(x)) return x;
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-function shuffle(a) {
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
 }
