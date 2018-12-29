@@ -2,7 +2,8 @@
 
 var KenoLogic = {
     MaxDraw: 15,
-    MaxSelections: 15
+    MaxSelections: 15,
+    Wagers: [1, 5, 10]
  };
 
 KenoLogic.makeSelections = function(){

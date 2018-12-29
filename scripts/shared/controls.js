@@ -492,7 +492,7 @@ Controls.Wager = function(rect, wager){
     this.rect = rect;
     this.current_wager = wager
     this.clickables = {};
-    this.increments = [1, 5, 10]
+    this.increments = KenoLogic.Wagers;
 
     function wagerActor(wager){
         this.wager = wager;
