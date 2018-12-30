@@ -403,6 +403,7 @@ Controls.Wager = function(rect){
 
     function extraOptionActor(){
         this.onClick = function(ctx){
+            if(!GameCanvas.wagers.extra_on) return;
             Audio.Settings();
             GameCanvas.wagers.extra_on = false;
             GameCanvas.bankroll.update(ctx, -GameCanvas.wagers.current_wager);
