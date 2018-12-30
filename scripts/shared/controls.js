@@ -104,11 +104,12 @@ Controls.Play = function(rect){
                 }
             }
         }
-        GameCanvas.payout.result(ctx, total_hit);
+        var winner = GameCanvas.payout.result(ctx, total_hit);
         GameCanvas.playButton.rounds_left--;
         
         if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-            setTimeout(GameCanvas.playButton.round, 1000)
+            var wonDelay = winner ? 2500 : 1000;
+            setTimeout(GameCanvas.playButton.round, wonDelay)
         } else {
             GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play)
         }
@@ -128,10 +129,11 @@ Controls.Play = function(rect){
                 }
                 animatingIdx++;
                 if(animatingIdx == KenoLogic.MaxDraw){
-                    GameCanvas.payout.result(ctx, total_hit);
+                    var winner = GameCanvas.payout.result(ctx, total_hit);
                     GameCanvas.playButton.rounds_left--;
                     if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-                        setTimeout(GameCanvas.playButton.round, 1000);
+                        var wonDelay = winner ? 2500 : 1000;
+                        setTimeout(GameCanvas.playButton.round, wonDelay)
                     } else {
                         GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play);
                     }
@@ -581,7 +583,7 @@ Controls.Bankroll = function(rect){
             ctx.fillStyle = Controls.style.bankroll.won_text;
             ctx.fillText('+ ' + amount, rect.x + (rect.w / 1.5), rect.y + (rect.h / 2));
             var that = this;
-            setTimeout(function(){ that.draw(ctx); }, 2000)
+            setTimeout(function(){ that.draw(ctx); }, 3500)
         } else {
             this.draw(ctx);
         }

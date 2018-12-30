@@ -8,6 +8,8 @@ var KenoLogic = {
     Wagers: [5, 10, 25]
  };
 
+KenoLogic.bankroll = 10000;
+
 KenoLogic.makeSelections = function(){
     var selections = [];
     return KenoLogic.getUniqueSelections(selections, 20);
@@ -54,4 +56,3 @@ KenoLogic.matrix = function(count, wager){
     return payoutStructure;
 }
 
-KenoLogic.bankroll = 2000;

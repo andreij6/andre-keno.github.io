@@ -14,9 +14,10 @@ Controls.Payout = function(rect, matrix){
                 this.draw(ctx, i);
                 GameCanvas.bankroll.update(ctx, this.payoutMatrix[i][1]);
                 Audio.Won();
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     this.update = function(ctx){

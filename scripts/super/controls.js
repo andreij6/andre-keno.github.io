@@ -29,10 +29,11 @@ Controls.Play = function(rect){
                 }
                 animatingIdx++;
                 if(animatingIdx == KenoLogic.MaxDraw){
-                    GameCanvas.payout.result(ctx, total_hit, first_hit);
+                    var winner = GameCanvas.payout.result(ctx, total_hit, first_hit);
                     GameCanvas.playButton.rounds_left--;
                     if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-                        setTimeout(GameCanvas.playButton.round, 1000);
+                        var wonDelay = winner ? 2500 : 1000;
+                        setTimeout(GameCanvas.playButton.round, wonDelay)
                     } else {
                         GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play);
                     }
@@ -175,10 +176,11 @@ Controls.Payout = function(rect, matrix){
                     Audio.Won();
                 }
                 
-                return;
+                return winnings > 0;
             }
         }
         GameCanvas.bankroll.update(ctx, -GameCanvas.wagers.current_wager);
+        return false;
     }
 
     this.update = function(ctx){

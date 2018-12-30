@@ -15,6 +15,7 @@ Controls.Play = function(rect){
         var total_hit = 0;
         numbers = shuffle(numbers);
         var animatingIdx = 0;
+        var first_hit = false;
         var last_hit = false;
         var animateNumber = function(){
             setTimeout(function(){
@@ -23,17 +24,21 @@ Controls.Play = function(rect){
                     if(GameCanvas.numbers[idx].number == number){
                         var before = total_hit;
                         total_hit += GameCanvas.numbers[idx].selected(ctx);
-                        if(total_hit > before && animatingIdx + 1 == KenoLogic.MaxDraw) last_hit = true;
-                        if(last_hit) GameCanvas.numbers[idx].multiplier(ctx)
+
+                        if((total_hit > before) && animatingIdx == 0) first_hit = true;
+                        if((total_hit > before) && animatingIdx == KenoLogic.MaxDraw - 1) last_hit = true;
+                        
+                        if(first_hit && animatingIdx == 0) GameCanvas.numbers[idx].multiplier(ctx);
+                        if(last_hit && animatingIdx == KenoLogic.MaxDraw - 1) GameCanvas.numbers[idx].multiplier(ctx)
                     }
                 }
                 animatingIdx++;
                 if(animatingIdx == KenoLogic.MaxDraw){
-                    var winner = GameCanvas.payout.result(ctx, total_hit, last_hit);
+                    var winner = GameCanvas.payout.result(ctx, total_hit, first_hit, last_hit);
                     GameCanvas.playButton.rounds_left--;
                     if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
                         var wonDelay = winner ? 2500 : 1000;
-                        setTimeout(GameCanvas.playButton.round, wonDelay)
+                        setTimeout(GameCanvas.playButton.round, wonDelay);
                     } else {
                         GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play);
                     }
@@ -67,6 +72,7 @@ Controls.Play = function(rect){
             var numbers = KenoLogic.makeSelections();
 
             GameCanvas.bankroll.update(ctx, -GameCanvas.wagers.current_wager);
+
             if(GameCanvas.tempo.isNormal == false){
                 GameCanvas.playButton.normalRound(ctx, numbers, 200);
             } else {
@@ -157,28 +163,35 @@ Controls.Play = function(rect){
 Controls.Payout = function(rect, matrix){
     this.rect = rect;
     this.payoutMatrix = matrix;
+
+    var either_multiplier = 2;
+    var both_multiplier = 4;
     
-    this.result = function(ctx, total, last_drawn_hit){
+    this.result = function(ctx, total, first_drawn_hit, last_drawn_hit){
         for(var i = 0; i < this.payoutMatrix.length; i++){
             if(this.payoutMatrix[i][0] == total){
                 var winnings = this.payoutMatrix[i][1]
-                if(last_drawn_hit) {
-                    winnings = winnings * 4;
-                    this.draw(ctx, i, true);
+                if(first_drawn_hit && last_drawn_hit) {
+                    winnings = winnings * both_multiplier;
+                    this.draw(ctx, i, both_multiplier);
+                } else if(first_drawn_hit || last_drawn_hit){
+                    winnings = winnings * either_multiplier;
+                    this.draw(ctx, i, either_multiplier);
                 } else {
                     this.draw(ctx, i);
                 }
                 GameCanvas.bankroll.update(ctx, winnings);
-                if(last_drawn_hit){
+                if(first_drawn_hit || last_drawn_hit){
                     Audio.BigWin();
                 } else {
                     Audio.Won();
                 }
-                
+
                 return winnings > 0;
             }
         }
         GameCanvas.bankroll.update(ctx, -GameCanvas.wagers.current_wager);
+
         return false;
     }
 
@@ -220,11 +233,11 @@ Controls.Payout = function(rect, matrix){
         var h = GameCanvas.dimenisons.boxSize;
         var w = rect.w * 2 + GameCanvas.dimenisons.boxMargin;
 
-        if(multiplier) {
+        if(multiplier !== undefined) {
             ctx.fillStyle = Controls.style.bankroll.won_background;
             ctx.fillRect(x, y, w, h);
             ctx.fillStyle = Controls.style.bankroll.won_text;
-            ctx.fillText('4x Multiplier', x + (w / 2), y + (h / 2));
+            ctx.fillText(multiplier + 'x Multiplier', x + (w / 2), y + (h / 2));
         } else {
             ctx.fillStyle = Controls.style.empty.background;
             ctx.fillRect(x, y, w, h);

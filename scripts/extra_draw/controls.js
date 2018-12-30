@@ -22,11 +22,12 @@ Controls.Play = function(rect){
             }
         }
 
-        GameCanvas.payout.result(ctx, total_hit);
+        var winner = GameCanvas.payout.result(ctx, total_hit);
         GameCanvas.playButton.rounds_left--;
         
         if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-            setTimeout(GameCanvas.playButton.round, 1000)
+            var wonDelay = winner ? 2500 : 1000;
+            setTimeout(GameCanvas.playButton.round, wonDelay)
         } else {
             GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play)
         }
@@ -51,10 +52,11 @@ Controls.Play = function(rect){
                         if(GameCanvas.numbers[idx].wasHit()) total_hit++;
                     }
 
-                    GameCanvas.payout.result(ctx, total_hit);
+                    var winner = GameCanvas.payout.result(ctx, total_hit);
                     GameCanvas.playButton.rounds_left--;
                     if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-                        setTimeout(GameCanvas.playButton.round, 1000);
+                        var wonDelay = winner ? 2500 : 1000;
+                        setTimeout(GameCanvas.playButton.round, wonDelay);
                     } else {
                         GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play);
                     }
@@ -123,11 +125,12 @@ Controls.Play = function(rect){
 
         if(before_total_hit == total_hit) total_hit = 0;
 
-        GameCanvas.payout.result(ctx, total_hit,true);
+        var winner = GameCanvas.payout.result(ctx, total_hit,true);
         GameCanvas.playButton.rounds_left--;
         
         if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-            setTimeout(GameCanvas.playButton.round, 1000)
+            var wonDelay = winner ? 2500 : 1000;
+            setTimeout(GameCanvas.playButton.round, wonDelay)
         } else {
             GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play)
         }
@@ -159,10 +162,11 @@ Controls.Play = function(rect){
                     }
 
                     if(before_total_hit == total_hit) total_hit = 0;
-                    GameCanvas.payout.result(ctx, total_hit, true);
+                    var winner = GameCanvas.payout.result(ctx, total_hit, true);
                     GameCanvas.playButton.rounds_left--;
                     if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-                        setTimeout(GameCanvas.playButton.round, 1000);
+                        var wonDelay = winner ? 2500 : 1000;
+                        setTimeout(GameCanvas.playButton.round, wonDelay)
                     } else {
                         GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play);
                     }
