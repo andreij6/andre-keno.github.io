@@ -74,9 +74,9 @@ Controls.Play = function(rect){
             GameCanvas.bankroll.update(ctx, -GameCanvas.wagers.current_wager);
 
             if(GameCanvas.tempo.isNormal == false){
-                GameCanvas.playButton.normalRound(ctx, numbers, 200);
+                GameCanvas.playButton.normalRound(ctx, numbers, 50);
             } else {
-                GameCanvas.playButton.normalRound(ctx, numbers, 400);
+                GameCanvas.playButton.normalRound(ctx, numbers, 250);
             }
         } else {
             GameCanvas.playButton.terminate = false;
