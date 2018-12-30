@@ -10,10 +10,10 @@ var GameCanvas = {
         canvas_width: 1680,
         canvas_height: 1050, 
         ratio: 16/9,
-        boxSize: 50,
+        boxSize: 65,
         boxMargin: 6,
         origin: {
-            x: 1680 / 5,
+            x: 1680 / 7,
             y: 1050 / 8
         }
     },
