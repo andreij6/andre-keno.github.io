@@ -89,13 +89,11 @@ Keno.Position = function(rect, number, state){
     this.reset = function(ctx){
         if(this.state == Keno.position.hit 
             || this.state == Keno.position.multiplier 
-            || this.state == Keno.position.hit_extra   
-            || this.state == Keno.position.miss_extra
-            )
+            || this.state == Keno.position.hit_extra)
             {
             this.state = Keno.position.selected;
             this.draw(ctx);
-        } else if(this.state == Keno.position.miss){
+        } else if(this.state == Keno.position.miss ||this.state == Keno.position.miss_extra){
             this.state = Keno.position.available;
             this.draw(ctx);
         }
