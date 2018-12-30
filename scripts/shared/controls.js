@@ -80,6 +80,10 @@ var Controls = {
             available_background: 'white',
             available_text: 'black'
         }
+    },
+    constants: {
+        winner_delay: 3000,
+        normal_delay: 1000
     }
 };
 
@@ -108,7 +112,7 @@ Controls.Play = function(rect){
         GameCanvas.playButton.rounds_left--;
         
         if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-            var wonDelay = winner ? 2500 : 1000;
+            var wonDelay = winner ? Controls.constants.winner_delay : Controls.constants.normal_delay;
             setTimeout(GameCanvas.playButton.round, wonDelay)
         } else {
             GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play)
@@ -132,7 +136,7 @@ Controls.Play = function(rect){
                     var winner = GameCanvas.payout.result(ctx, total_hit);
                     GameCanvas.playButton.rounds_left--;
                     if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-                        var wonDelay = winner ? 2500 : 1000;
+                        var wonDelay = winner ? Controls.constants.winner_delay : Controls.constants.normal_delay;
                         setTimeout(GameCanvas.playButton.round, wonDelay)
                     } else {
                         GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play);
@@ -565,6 +569,7 @@ Controls.Wager = function(rect){
 
 Controls.Bankroll = function(rect){
     this.rect = rect;
+    this.queue = [];
 
     this.update = function(ctx, amount){
         KenoLogic.bankroll += amount;
@@ -583,7 +588,7 @@ Controls.Bankroll = function(rect){
             ctx.fillStyle = Controls.style.bankroll.won_text;
             ctx.fillText('+ ' + amount, rect.x + (rect.w / 1.5), rect.y + (rect.h / 2));
             var that = this;
-            setTimeout(function(){ that.draw(ctx); }, 3500)
+            setTimeout(function(){ that.draw(ctx); }, 3000)
         } else {
             this.draw(ctx);
         }

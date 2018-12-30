@@ -26,7 +26,7 @@ Controls.Play = function(rect){
         GameCanvas.playButton.rounds_left--;
         
         if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-            var wonDelay = winner ? 2500 : 1000;
+            var wonDelay = winner ? Controls.constants.winner_delay : Controls.constants.normal_delay;
             setTimeout(GameCanvas.playButton.round, wonDelay)
         } else {
             GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play)
@@ -55,7 +55,7 @@ Controls.Play = function(rect){
                     var winner = GameCanvas.payout.result(ctx, total_hit);
                     GameCanvas.playButton.rounds_left--;
                     if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-                        var wonDelay = winner ? 2500 : 1000;
+                        var wonDelay = winner ? Controls.constants.winner_delay : Controls.constants.normal_delay;
                         setTimeout(GameCanvas.playButton.round, wonDelay);
                     } else {
                         GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play);
@@ -129,7 +129,7 @@ Controls.Play = function(rect){
         GameCanvas.playButton.rounds_left--;
         
         if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-            var wonDelay = winner ? 2500 : 1000;
+            var wonDelay = winner ? Controls.constants.winner_delay : Controls.constants.normal_delay;
             setTimeout(GameCanvas.playButton.round, wonDelay)
         } else {
             GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play)
@@ -165,7 +165,7 @@ Controls.Play = function(rect){
                     var winner = GameCanvas.payout.result(ctx, total_hit, true);
                     GameCanvas.playButton.rounds_left--;
                     if(GameCanvas.playButton.rounds_left > 0 && !GameCanvas.playButton.terminate){
-                        var wonDelay = winner ? 2500 : 1000;
+                        var wonDelay = winner ? Controls.constants.winner_delay : Controls.constants.normal_delay;
                         setTimeout(GameCanvas.playButton.round, wonDelay)
                     } else {
                         GameCanvas.playButton.update(ctx, GameCanvas.playButton.states.play);
