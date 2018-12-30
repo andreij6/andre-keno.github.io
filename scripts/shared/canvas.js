@@ -212,3 +212,21 @@ GameCanvas.resize();
 canvas.addEventListener('click', GameCanvas.onClick);
 
 window.addEventListener('resize', GameCanvas.resize, false);
+
+document.body.onkeyup = function(e){
+    var space = 32;
+    var c = 67;
+    var q = 81;
+
+    if(e.keyCode == space){
+        if(GameCanvas.playButton) GameCanvas.playButton.onClick(ctx);
+    }
+
+    if(e.keyCode == c){
+        if(GameCanvas.clearAll) GameCanvas.clearAll.onClick(ctx);
+    }
+
+    if(e.keyCode == q){
+        if(GameCanvas.quickPick) GameCanvas.quickPick.onClick(ctx);
+    }
+}

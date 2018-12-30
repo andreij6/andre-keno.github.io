@@ -131,8 +131,8 @@ Controls.Play = function(rect){
     }
 
     var waitConfig = { background: Controls.style.wait.background, text: Controls.style.wait.text, data: 'Final Round'}
-    var stopConfig = { background: Controls.style.stop.background, text: Controls.style.stop.text, data: 'Stop'}
-    var playConfig = { background: Controls.style.play.background, text: Controls.style.play.text, data: 'Play'}
+    var stopConfig = { background: Controls.style.stop.background, text: Controls.style.stop.text, data: 'Stop '}
+    var playConfig = { background: Controls.style.play.background, text: Controls.style.play.text, data: 'Play '}
 
     this.draw = function(ctx){
         stopConfig.extra = 'Round ' + (GameCanvas.rounds.current_round - (this.rounds_left - 1)) + ' of ' + numberWithCommas(GameCanvas.rounds.current_round);
