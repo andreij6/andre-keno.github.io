@@ -190,8 +190,6 @@ Controls.Payout = function(rect, matrix){
                 return winnings > 0;
             }
         }
-        GameCanvas.bankroll.update(ctx, -GameCanvas.wagers.current_wager);
-
         return false;
     }
 
