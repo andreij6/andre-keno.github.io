@@ -71,7 +71,7 @@ Controls.Play = function(rect){
             if(GameCanvas.tempo.isNormal == false){
                 GameCanvas.playButton.normalRound(ctx, numbers, 25);
             } else {
-                GameCanvas.playButton.normalRound(ctx, numbers, 250);
+                GameCanvas.playButton.normalRound(ctx, numbers, 200);
             }
         } else {
             GameCanvas.playButton.terminate = false;

@@ -63,7 +63,7 @@ Controls.Play = function(rect){
                 } else {
                     animateNumber();
                 }
-            }, 400);
+            }, 200);
         }
         animateNumber();
     }
