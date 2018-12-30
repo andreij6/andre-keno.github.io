@@ -128,6 +128,7 @@ GameCanvas.draw = function(){
         h = ((GameCanvas.dimenisons.boxSize * 9) + (GameCanvas.dimenisons.boxMargin * 4)) / 5;
         if(!('rounds' in GameCanvas)) GameCanvas.rounds = new Controls.Round(new Keno.Rect(x,y,w,h), 1);
         GameCanvas.rounds.draw(ctx);
+        
 
         x = GameCanvas.dimenisons.origin.x + (12 * GameCanvas.dimenisons.boxSize) + (10 * GameCanvas.dimenisons.boxMargin);
         y = GameCanvas.dimenisons.origin.y + (GameCanvas.dimenisons.boxSize * 9) + (GameCanvas.dimenisons.boxMargin * 9);
@@ -201,6 +202,8 @@ WebFont.load({
     },
     active: function() {
       GameCanvas.resize();
+
+      Audio.Background();
     }
 });
 

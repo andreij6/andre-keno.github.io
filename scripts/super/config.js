@@ -1,3 +1,4 @@
 var Config = {
-    game: 'Super Keno'
+    game: 'Super Keno',
+    description: ''
 };

@@ -1,6 +1,6 @@
 Audio = {};
 
-function sound(src) {
+function soundFx(src) {
     this.sound = document.createElement("audio");
     this.sound.src = src;
     this.sound.setAttribute("preload", "auto");
@@ -16,14 +16,15 @@ function sound(src) {
 }
 
 Audio.files = {
-  numberSelect: new sound('assets/sound/select_number_1.wav'),
-  numberDeSelect: new sound('assets/sound/deselect_number.wav'),
-  won: new sound('assets/sound/win.wav'),
-  clear: new sound('assets/sound/clear.wav'),
-  control: new sound('assets/sound/control_check.wav'),
-  hit: new sound('assets/sound/hit.wav'),
-  play: new sound('assets/sound/winner.wav'),
-  bigWin: new sound('assets/sound/winner.wav')
+  numberSelect: new soundFx('assets/sound/select_number_1.wav'),
+  numberDeSelect: new soundFx('assets/sound/deselect_number.wav'),
+  won: new soundFx('assets/sound/win.wav'),
+  clear: new soundFx('assets/sound/clear.wav'),
+  control: new soundFx('assets/sound/control_check.wav'),
+  hit: new soundFx('assets/sound/hit.wav'),
+  play: new soundFx('assets/sound/winner.wav'),
+  bigWin: new soundFx('assets/sound/winner.wav'),
+  //loop: new loop('assets/sound/background.wav')
 }
 
 Audio.Play = function(){
@@ -56,4 +57,8 @@ Audio.Select = function(){
 
 Audio.DeSelect = function(){
   if(GameCanvas.sound.on) Audio.files.numberDeSelect.play();
+}
+
+Audio.Background = function() {
+  //if(GameCanvas.sound.on) Audio.files.loop.play();
 }

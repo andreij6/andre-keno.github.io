@@ -17,7 +17,6 @@ Controls.Payout = function(rect, matrix){
                 return;
             }
         }
-        GameCanvas.bankroll.update(ctx, -GameCanvas.wagers.current_wager);
     }
 
     this.update = function(ctx){

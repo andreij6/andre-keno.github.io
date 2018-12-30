@@ -6,7 +6,7 @@ var KenoLogic = {
     MaxDraw: 20,
     MaxSelections: 10,
     Wagers: [5, 10, 25],
-    
+    ExtraCount: 3
  };
 
 KenoLogic.makeSelections = function(){
@@ -17,6 +17,24 @@ KenoLogic.makeSelections = function(){
 KenoLogic.quickSelections = function(selected){
     if(selected.length == 10) selected = [];
     return KenoLogic.getUniqueSelections(selected, 10);
+}
+
+KenoLogic.extraDraws = function(selected){
+    var extras = [];
+
+    while(extras.length < KenoLogic.ExtraCount){
+        var pick = Math.floor(Math.random() * 80) + 1;
+        var add = true;
+        for(var i = 0; i < selected.length; i++){
+            if(selected[i] == pick) add = false;
+        }
+        if(add){
+            selected.push(pick);
+            extras.push(pick);
+        }
+    }
+    return extras;
+    
 }
 
 KenoLogic.getUniqueSelections = function(array, max){

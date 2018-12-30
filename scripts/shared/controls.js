@@ -1,6 +1,5 @@
 'use strict';
 
-
 var Controls = {
     style: {
         bankroll: {
@@ -27,7 +26,9 @@ var Controls = {
             available_text: 'black',
             available_background: 'white',
             disabled_background: 'grey',
-            disabled_text: 'white'
+            disabled_text: 'black',
+            extra_on_text: 'black',
+            extra_on_background: 'yellow'
         },
         round: {
             selected_background: '#125089',
@@ -36,10 +37,14 @@ var Controls = {
             available_text: 'black',
             available_background: 'white',
             disabled_background: 'grey',
-            disabled_text: 'white'
+            disabled_text: 'black'
         },
         play: {
             background: 'green',
+            text: 'white'
+        },
+        play_extra: {
+            background: 'red',
             text: 'white'
         },
         stop: {
@@ -57,6 +62,10 @@ var Controls = {
         },
         heading: {
             background: 'grey',
+            text: 'white'
+        },
+        extra: {
+            background: 'green',
             text: 'white'
         },
         sound: {
@@ -154,6 +163,8 @@ Controls.Play = function(rect){
                 GameCanvas.numbers[i].reset(ctx);
             } 
             var numbers = KenoLogic.makeSelections();
+
+            GameCanvas.bankroll.update(ctx, -GameCanvas.wagers.current_wager);
 
             if(GameCanvas.tempo.isNormal == false){
                 if(GameCanvas.playButton.rounds_left == GameCanvas.rounds.current_round){
@@ -332,7 +343,7 @@ Controls.Sound = function(rect, on){
         ctx.fillStyle = Controls.style.heading.background;
         ctx.fillRect(rect.x, rect.y, rect.w, rect.h / 2);
         ctx.fillStyle = Controls.style.heading.text;
-        ctx.fillText("Sound", rect.x + (rect.w / 2), rect.y + (rect.h / 4))
+        ctx.fillText("Sound FX", rect.x + (rect.w / 2), rect.y + (rect.h / 4))
 
         var y = rect.y +  GameCanvas.dimenisons.boxSize + GameCanvas.dimenisons.boxMargin;
 
@@ -439,7 +450,7 @@ Controls.Round = function(rect, round){
         this.round = round;
 
         this.onClick = function(ctx){
-            if(GameCanvas.playButton.inRound()) return;
+            if(GameCanvas.playButton.inRound() || Config.game == 'Extra Draw Keno') return;
             Audio.Settings();
             GameCanvas.rounds.update(ctx, this.round)
         }
@@ -460,6 +471,12 @@ Controls.Round = function(rect, round){
     var disabled = {text: Controls.style.round.disabled_text, background: Controls.style.round.disabled_background }
 
     this.draw = function(ctx){
+        if(Config.game == 'Extra Draw Keno') {
+            for(var key in this.increments){
+                this.clickables[this.increments[key]] = { rect: new Keno.Rect(0, 0, 0, 0), actor: new roundActor(this.increments[key])}
+            }
+            return;
+        };
         for(var key in this.increments){
             var y = rect.y + (rect.h * key) + (GameCanvas.dimenisons.boxMargin * key);
             var suffix = key == 0 ? ' Round' : ' Rounds';
@@ -516,8 +533,12 @@ Controls.Wager = function(rect){
     var disabled = {text: Controls.style.wager.disabled_text, background: Controls.style.wager.disabled_background }
 
     this.draw = function(ctx){
+        var w = rect.w;
+        var h = rect.h;
+        var y = rect.y;
+
         for(var key in this.increments){
-            var y = rect.y + (rect.h * key) + (GameCanvas.dimenisons.boxMargin * key);
+            y = rect.y + (h * key) + (GameCanvas.dimenisons.boxMargin * key);
 
             var colors = this.current_wager === this.increments[key] ? selected : available;
 
@@ -528,10 +549,10 @@ Controls.Wager = function(rect){
             }
 
             ctx.fillStyle = colors.background;
-            ctx.fillRect(rect.x, y, rect.w, rect.h);
+            ctx.fillRect(rect.x, y, w, h);
             ctx.fillStyle = colors.text;
-            ctx.fillText(this.increments[key] + ' FUN', rect.x + (rect.w / 2), y + (rect.h / 2));
-            this.clickables[this.increments[key]] = { rect: new Keno.Rect(rect.x, y, rect.w, rect.h), actor: new wagerActor(this.increments[key])}
+            ctx.fillText(this.increments[key] + ' FUN', rect.x + (w / 2), y + (h / 2));
+            this.clickables[this.increments[key]] = { rect: new Keno.Rect(rect.x, y, w, h), actor: new wagerActor(this.increments[key])}
         }
     }
 

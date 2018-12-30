@@ -1,3 +1,4 @@
 var Config = {
-    game: 'Power Keno'
+    game: 'Power Keno',
+    description: ''
 };

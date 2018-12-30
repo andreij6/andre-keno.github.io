@@ -1,3 +1,4 @@
 var Config = {
-    game: 'Extra Draw Keno'
+    game: 'Extra Draw Keno',
+    description: ""
 };

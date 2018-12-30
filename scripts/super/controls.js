@@ -65,6 +65,8 @@ Controls.Play = function(rect){
             } 
             var numbers = KenoLogic.makeSelections();
 
+            GameCanvas.bankroll.update(ctx, -GameCanvas.wagers.current_wager);
+
             if(GameCanvas.tempo.isNormal == false){
                 GameCanvas.playButton.normalRound(ctx, numbers, 200);
             } else {
