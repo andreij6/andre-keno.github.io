@@ -129,12 +129,12 @@ Game.draw = function(){
         if(!('rounds' in Game)) Game.rounds = new Round(new Rect(x,y,w,h), 1);
         Game.rounds.draw(ctx);
         
-
         x = Game.dimenisons.origin.x + (12 * Game.dimenisons.boxSize) + (10 * Game.dimenisons.boxMargin);
         y = Game.dimenisons.origin.y + (Game.dimenisons.boxSize * 9) + (Game.dimenisons.boxMargin * 9);
         w = w + w + Game.dimenisons.boxMargin;
         h = Game.dimenisons.boxSize * 3 + Game.dimenisons.boxMargin * 2;
-        if(!('playButton' in Game)) Game.playButton = new Play(new Rect(x, y, w, h));
+        var playW = w + (Game.dimenisons.boxSize * 2) + Game.dimenisons.boxMargin;
+        if(!('playButton' in Game)) Game.playButton = new Play(new Rect(x, y, playW, h));
         Game.playButton.draw(ctx);
 
         x = x + w + Game.dimenisons.boxMargin;
@@ -144,9 +144,7 @@ Game.draw = function(){
         if(!('sound' in Game)) Game.sound = new SoundCtrl(new Rect(x,y,w,h), true);
         Game.sound.draw(ctx);
 
-        y = y + (Game.dimenisons.boxSize * 5) + (Game.dimenisons.boxMargin * 3);
-
-        h = Game.dimenisons.boxSize * 2;
+        y = y + (Game.dimenisons.boxSize * 5) - (Game.dimenisons.boxMargin * 1);
         if(!('tempo' in Game)) Game.tempo = new Tempo(new Rect(x,y,w,h), true);
         Game.tempo.draw(ctx);
     }
