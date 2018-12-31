@@ -28,37 +28,37 @@ Audio.files = {
 }
 
 Audio.Play = function(){
-  //if(GameCanvas.sound.on) Audio.files.bigWin.play();
+  //if(Game.sound.on) Audio.files.bigWin.play();
 }
 
 Audio.Settings = function(){
-  if(GameCanvas.sound.on) Audio.files.control.play();
+  if(Game.sound.on) Audio.files.control.play();
 }
 
 Audio.ClearAll = function(){
-  if(GameCanvas.sound.on) Audio.files.clear.play();
+  if(Game.sound.on) Audio.files.clear.play();
 }
 
 Audio.QuickPick = function(){
-  if(GameCanvas.sound.on) Audio.files.clear.play();
+  if(Game.sound.on) Audio.files.clear.play();
 }
 
 Audio.Won = function(){
-  if(GameCanvas.sound.on) Audio.files.won.play();
+  if(Game.sound.on) Audio.files.won.play();
 }
 
 Audio.BigWin = function(){
-  if(GameCanvas.sound.on) Audio.files.bigWin.play();
+  if(Game.sound.on) Audio.files.bigWin.play();
 }
 
 Audio.Select = function(){
-  if(GameCanvas.sound.on) Audio.files.numberSelect.play();
+  if(Game.sound.on) Audio.files.numberSelect.play();
 }
 
 Audio.DeSelect = function(){
-  if(GameCanvas.sound.on) Audio.files.numberDeSelect.play();
+  if(Game.sound.on) Audio.files.numberDeSelect.play();
 }
 
 Audio.Background = function() {
-  //if(GameCanvas.sound.on) Audio.files.loop.play();
+  //if(Game.sound.on) Audio.files.loop.play();
 }

@@ -1,4 +1,4 @@
-var Config = {
-    game: 'Super Keno',
-    description: ''
-};
+'use strict';
+
+Config.game =  'Super Keno',
+Config.description = ''
